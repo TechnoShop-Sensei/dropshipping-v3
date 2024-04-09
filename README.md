@@ -179,4 +179,4 @@ Para crear una Orden de Woocomerce a Ingram realizar los siguientes pasos en el 
 
 
 
-![Logo](https://sp-ao.shortpixel.ai/client/to_auto,q_glossy,ret_img/https://www.bluediamondinnovation.com/wp-content/uploads/2021/11/Logo-Transparente_Mesa-de-trabajo-1.png)
+![Logo](https://sp-ao.shortpixel.ai/client/to_auto,q_glossy,ret_img/https://techno-shop.mx/wp-content/uploads/2024/02/TS_1_250x150-1.png)
