@@ -98,8 +98,8 @@ class PostProductos {
             const cantidad = 0; // Asume una cantidad de 0 si no se proporciona
     
             // Inserta en la base de datos
-            const queryInsert = `INSERT INTO ingramProductosv2 (Sku_ingram, Nombre, Nombre_Optimatizado, Precio_Ingram, Status_Woocommerce, Catalog_visibility_Woo, Cantidad, Peso, Longitud, Ancho, Altura, id_marca, id_categoria, id_subcategoria, Descripcion_corta, Utilidad_por_Producto) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-            const values = [sku, TituloFormateado, SlugFormateado, regular_price, statusValor, visibilty, cantidad, dimension_peso, dimension_length, dimension_width, dimension_height, marca[0]?.id_woocomerce_marca, categoria[0]?.id_woocomerce_categoria, categoria[0]?.Parent, detalles, 0];
+            const queryInsert = `INSERT INTO ingramProductosv2 (Sku_ingram, Nombre, Nombre_Optimatizado, Precio_Ingram, Precio_Ingram_Utilidad, Precio_Final, Status_Woocommerce, Catalog_visibility_Woo, Cantidad, Peso, Longitud, Ancho, Altura, id_marca, id_categoria, id_subcategoria, Descripcion_corta, Utilidad_por_Producto) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            const values = [sku, TituloFormateado, SlugFormateado, regular_price, 0, 0, statusValor, visibilty, cantidad, dimension_peso, dimension_length, dimension_width, dimension_height, marca[0]?.id_woocomerce_marca, categoria[0]?.id_woocomerce_categoria, categoria[0]?.Parent, detalles, 0];
             await this.pool.query(queryInsert, values);
             return `Se ha Agregado SKU: ${sku}, De Nombre: ${TituloFormateado}`;
         } catch (error) {
