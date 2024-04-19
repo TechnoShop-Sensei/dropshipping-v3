@@ -1,11 +1,11 @@
 const { Router } = require('express')
-const { tokenUpdateIngram } = require('../controllers/token.controllers');
+const { tokenUpdateIngram, tokenUpdateBDI } = require('../controllers/token.controllers');
 
 const router = Router();
 
 
-router.get('/v10', tokenUpdateIngram); // Ruta Token Ingram Update en BD
-
+router.get('/', tokenUpdateIngram); // Ruta Token Ingram Update en BD
+router.get('/bdi', tokenUpdateBDI)
 
 
 module.exports = router;

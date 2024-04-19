@@ -21,7 +21,6 @@ class TokenAPI {
             const [rows] = await pool.query(query);
             console.log(`Se actualizo ${ rows.affectedRows }`);
 
-            pool.end()
             return rows
         } catch (error) {
             throw error;
@@ -31,16 +30,16 @@ class TokenAPI {
 
 }
 
-  const main = async() => {
-        const Token = new TokenAPI()
+//   const main = async() => {
+//         const Token = new TokenAPI()
 
-        const token = await Token.crearToken()
-        console.log('====================================');
-        console.log(token);
-        console.log('====================================');
+//         const token = await Token.crearToken()
+//         console.log('====================================');
+//         console.log(token);
+//         console.log('====================================');
 
-    }
+//     }
 
-    main()
+//     main()
 
 module.exports = TokenAPI

@@ -11,7 +11,7 @@ class TokenIngram {
         try {
             const config = new configIngram();
 
-            const ver = await config.clavesAjusteGeneralV10Token();
+            const ver = await config.clavesAjusteGeneralToken();
             const response = await axios.get(urlTokenIngram, { params: ver });
 
             const query  = `UPDATE ingramTokens SET Token_Ingram = '${ response.data.access_token }' WHERE id_token_Ingram = 1`;
