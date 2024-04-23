@@ -55,9 +55,21 @@ const categoriasPutWoo = async(req = request, res = response) => {
     })
   }
 
+  const categoriasGeneralesBD = async(req = request, res = response) => {
+
+    const ver = await categoriasClass.categoriasSeleccionadas();
+
+    res.json({
+        msg: 'Post Api - Update Categorias Generales en BD',
+        data: ver
+    })
+  }
+
+
 module.exports = {
     categoriasPost,
     categoriasPostWoo,
     categoriasPutBD,
-    categoriasPutWoo
+    categoriasPutWoo,
+    categoriasGeneralesBD
 }

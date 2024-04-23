@@ -4,6 +4,8 @@ const { urlCreateCategoriasWoo, urlupdateCategoriasWoo, urlUpdateCategoriasWoo }
 const axios = require('axios');
 const pool = require('../../database/conexion');
 const categoriasSeleccionadas = require('../../Helpers/categorias');
+const categoriasGenerales = require('../../Helpers/categoriasGenerales');
+const { json } = require('express');
 const chunks = require('chunk-array').chunks
 class PostCategorias {
     constructor(pool) {
@@ -69,51 +71,104 @@ class PostCategorias {
         }
     }
 
+    // ? Obtener Categoria General y Categorias Dependientes
+    async categoriasSeleccionadas() {
+        try {
+            const datosAInsertar = [];
+            const categoriaMap = new Map();
+    
+            // Recopilar información de la base de datos y mapear
+            for (const categoriaGeneral of categoriasGenerales) {
+                for (const idDependiente of categoriaGeneral.Dependencias) {
+                    if (!categoriaMap.has(idDependiente)) {
+                        const [rows] = await this.pool.query('SELECT * FROM ingramCategorias WHERE id_bdi = ?', [idDependiente]);
+                        if (rows.length > 0) {
+                            categoriaMap.set(idDependiente, rows[0].Nombre_Categoria_Ingram);
+                        }
+                    }
+                }
+            }
+    
+            // Procesar y preparar los datos para inserción o actualización
+            for (const categoriaGeneral of categoriasGenerales) {
+                let nombresDependientes = categoriaGeneral.Dependencias.map(id => categoriaMap.get(id) || id);
+    
+                // Convertir los arreglos a JSON para almacenamiento en MySQL
+                let idsDependientesJSON = JSON.stringify(categoriaGeneral.Dependencias);
+                let nombresDependientesJSON = JSON.stringify(nombresDependientes);
+    
+                // Comprobar si el nombre ha cambiado y actualizar si es necesario
+                const [existingEntry] = await this.pool.query('SELECT nombre_categoria_principal FROM wooCategoriasNew WHERE nombre_categoria_principal = ?', [categoriaGeneral.name]);
+                
+                
+                if (existingEntry.length === 0) {
+                    // Si la categoría no existe, insertar la nueva categoría
+                    const queryInsert = 'INSERT INTO wooCategoriasNew (nombre_categoria_principal, id_categorias_dependientes, Nombre_Categorias_Dependientes) VALUES (?, ?, ?)';
+                    await this.pool.query(queryInsert, [categoriaGeneral.name, idsDependientesJSON, nombresDependientesJSON]);
+                    datosAInsertar.push(`Insertada: ${categoriaGeneral.name}`);
+                }else{
+                    console.log("Sin Cambios");
+                    datosAInsertar.push('Sin Novedades')
+                }
+            }
+    
+            return datosAInsertar;
+        } catch (error) {
+            console.error('Error al actualizar categorías:', error);
+            throw error;
+        }
+    }
+    
 
+    // ? Agregar Categoria General y Obtner id
     async postCategoriasWoo(){
         try {
             const configHeader = new configAPIWoo();
 
             const config = await configHeader.clavesAjusteGeneral();
 
-            const querySelect = `SELECT * FROM ingramCategorias`;
+
+            const querySelect = `SELECT * FROM wooCategoriasNew`;
             const [rows] = await pool.query(querySelect);
 
-            const categoriasList = rows.map(marca => {
+            const nameCategoria = rows.map(marca => {
                 return {
-                    name: marca.Nombre_Optimatizado_Categoria,
-                    parent: marca.Parent
+                    name: marca.nombre_categoria_principal,
                 }
             })
 
-            let categoriasRows = chunks(categoriasList, 100);
+            let categoriasRows = chunks(nameCategoria, 100);
             const msg = [];
 
-            for (let categoriasChunk of categoriasRows) {
+            const promises =  categoriasRows.map(async (categorias)=> {
                 try {
-                    const datos = { create: categoriasChunk };
+                    const datos = { 
+                        create: categorias
+                     };
+                    
                     const creandoCategoria = await axios.post(urlCreateCategoriasWoo, datos, config);
                     
-                    // Procesar las actualizaciones de la base de datos en lotes
-                    for (let i = 0; i < creandoCategoria.data.create.length; i += 5) {
-                        const batch = creandoCategoria.data.create.slice(i, i + 5);
+                    creandoCategoria.data.create.forEach(async element => {
+                        
+                        const idCategoria = element.id;
+                        const NombreCategoria = element.name;
 
-                        await Promise.all(batch.map(async element => {
-                            const idcategoria = element.id;
-                            const nombreCategoria = element.name;
-                            const queryUpdate = `Update ingramCategorias SET id_woocomerce_categoria = ? WHERE Nombre_Optimatizado_Categoria = ?`;
-                            await this.pool.query(queryUpdate, [idcategoria, nombreCategoria]);
-                            msg.push(`Se Actualizo una Marca con el ID: ${element.idcategoria}, Nombre: ${element.nombreCategoria}`);
-                        }));
+                        const queryUpdate = `Update wooCategoriasNew SET id_woocoommerce = ? WHERE nombre_categoria_principal = ?`;
+                        const values = [idCategoria, NombreCategoria];
+                        await pool.query(queryUpdate, values);
 
-                    }
+                        msg.push(`Se agrego un Categoria: ${ element.name }`)
+                        console.log(`Se agrego un Categoria: ${ element.name }`);
+                    });
+                
                     
                 } catch (error) {
                     console.error(`Error al cargar producto - ${error}`);
                     msg.push(`Error al cargar producto - ${error}`);
                 }
-            }
-            
+            });
+            await Promise.all(promises)
+
             return msg
 
         } catch (error) {
@@ -576,41 +631,101 @@ class PostCategorias {
         }
     }
 
-    async updateCategoriaParentWoo(){
+    async updateCategoriaParentWoo() {
         try {
             const configHeader = new configAPIWoo();
-
             const config = await configHeader.clavesAjusteGeneral();
-
-            const consultaSelect = `SELECT * FROM ingramCategorias`;
+            const querySelect = `SELECT * FROM wooCategoriasNew`;
+            const [rows] = await this.pool.query(querySelect);
+            const msg = [];
     
-            const [row] = await pool.query(consultaSelect)
+            for (const row of rows) {
+                // Asumiendo que la columna es un JSON válido de nombres
+                const nombresCategoriasDependientes = JSON.parse(row.Nombre_Categorias_Dependientes);
 
-            let msg = []
+                console.log(nombresCategoriasDependientes);
+    
+                // Divide los nombres en lotes de 100
+                const lotesDeNombres = chunks(nombresCategoriasDependientes, 100);
+    
+                const promise = lotesDeNombres.map(async (cat) => {
 
-            const promise = row.map(async (parent) => {
-                try {
-                    const { id, Nombre } = parent
-    
-                    let data = {
-                        parent: parent.Parent
-                    }
-    
-                    await axios.put(`${urlUpdateCategoriasWoo}/${ id }`, data, config)
-    
-                    msg.push(`La Categoria ${ id } --- ${ Nombre } se ha Actualizado en Woocommerce`);
-                } catch (error) {
-                    msg.push(`Hubo un error en actualizar ${ parent.Nombre } --- ${ error}`);
-                }
-            });
-            
-            await Promise.all(promise)
+                
+                    // Preparar el lote para la creación de categorías
+                    const datosLote = cat.map(nombre => ({ name: nombre }));
 
+                    const datos = { 
+                        create: datosLote 
+                    };
+    
+                    // try {
+                    //     // Enviar el lote a WooCommerce
+                    //     const response = await axios.post(urlCreateCategoriasWoo, datos, config);
+                    //     const idsCreados = response.data.create.map(categoria => categoria.id);
+    
+                    //     // Concatenar los IDs creados a la lista actual de IDs dependientes
+                    //     await this.pool.query(
+                    //         `UPDATE wooCategoriasNew SET id_parent_woocoomerce = CONCAT(IFNULL(id_parent_woocoomerce,''),?) 
+                    //         WHERE nombre_categoria_principal = ?`,
+                    //         [idsCreados.join(',') + ',', row.nombre_categoria_principal]
+                    //     );
+    
+                    //     msg.push(`Categorías creadas para el lote y actualizadas en la base de datos.`);
+                    // } catch (error) {
+                    //     msg.push(`Error al procesar el lote: ${error.message}`);
+                    // }
+                })
+
+                await Promise.all(promise)
+
+            }
+    
             return msg;
-        }catch(error){
-            throw error
+        } catch (error) {
+            console.error('Error al procesar categorías:', error);
+            throw error;
         }
     }
+    
+
+
+    
+    
+    // async updateCategoriaParentWoo(){
+    //     try {
+    //         const configHeader = new configAPIWoo();
+
+    //         const config = await configHeader.clavesAjusteGeneral();
+
+    //         const consultaSelect = `SELECT * FROM ingramCategorias`;
+    
+    //         const [row] = await pool.query(consultaSelect)
+
+    //         let msg = []
+
+    //         const promise = row.map(async (parent) => {
+    //             try {
+    //                 const { id, Nombre } = parent
+    
+    //                 let data = {
+    //                     parent: parent.Parent
+    //                 }
+    
+    //                 await axios.put(`${urlUpdateCategoriasWoo}/${ id }`, data, config)
+    
+    //                 msg.push(`La Categoria ${ id } --- ${ Nombre } se ha Actualizado en Woocommerce`);
+    //             } catch (error) {
+    //                 msg.push(`Hubo un error en actualizar ${ parent.Nombre } --- ${ error}`);
+    //             }
+    //         });
+            
+    //         await Promise.all(promise)
+
+    //         return msg;
+    //     }catch(error){
+    //         throw error
+    //     }
+    // }
 }
 
 module.exports = PostCategorias

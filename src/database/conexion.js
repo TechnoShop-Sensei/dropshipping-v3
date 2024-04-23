@@ -1,11 +1,12 @@
 const { createPool } = require('mysql2/promise')
+require('dotenv').config();
 
     const pool = createPool({ 
-        host: 'monorail.proxy.rlwy.net',
-        port: 38926,
-        user: 'root',
-        password: "WgFeuvJMcgBkvjpUkVSSYtanwKsAAmlh",
-        database: "railway"
+        host: process.env.host,
+        port: process.env.portbd,
+        user: process.env.user,
+        password: process.env.password,
+        database: process.env.database
     });
     
     // const main = async() => {

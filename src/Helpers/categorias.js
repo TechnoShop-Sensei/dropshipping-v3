@@ -61,6 +61,7 @@ const categoriasSeleccionadas = [
     "Pantallas de TV",
     "Periféricos POS",
     "Plotters",
+    "Procesadores",
     "Protección Eléctrica",
     "Dispositivos de Video",
     "Proyectores",

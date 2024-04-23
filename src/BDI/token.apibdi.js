@@ -1,6 +1,6 @@
 const axios = require('axios');
 const pool = require('../database/conexion')
-
+require('dotenv').config();
 
 class TokenAPI {
 
