@@ -5,7 +5,6 @@ const axios = require('axios');
 const pool = require('../../database/conexion');
 const categoriasSeleccionadas = require('../../Helpers/categorias');
 const categoriasGenerales = require('../../Helpers/categoriasGenerales');
-const { json } = require('express');
 const chunks = require('chunk-array').chunks
 class PostCategorias {
     constructor(pool) {
@@ -96,20 +95,13 @@ class PostCategorias {
                 // Convertir los arreglos a JSON para almacenamiento en MySQL
                 let idsDependientesJSON = JSON.stringify(categoriaGeneral.Dependencias);
                 let nombresDependientesJSON = JSON.stringify(nombresDependientes);
-    
-                // Comprobar si el nombre ha cambiado y actualizar si es necesario
-                const [existingEntry] = await this.pool.query('SELECT nombre_categoria_principal FROM wooCategoriasNew WHERE nombre_categoria_principal = ?', [categoriaGeneral.name]);
                 
-                
-                if (existingEntry.length === 0) {
-                    // Si la categoría no existe, insertar la nueva categoría
-                    const queryInsert = 'INSERT INTO wooCategoriasNew (nombre_categoria_principal, id_categorias_dependientes, Nombre_Categorias_Dependientes) VALUES (?, ?, ?)';
-                    await this.pool.query(queryInsert, [categoriaGeneral.name, idsDependientesJSON, nombresDependientesJSON]);
-                    datosAInsertar.push(`Insertada: ${categoriaGeneral.name}`);
-                }else{
-                    console.log("Sin Cambios");
-                    datosAInsertar.push('Sin Novedades')
-                }
+
+                 // Si la categoría no existe, insertar la nueva categoría
+                 const queryInsert = 'INSERT INTO wooCategoriasNew (nombre_categoria_principal, id_categorias_dependientes, Nombre_Categorias_Dependientes) VALUES (?, ?, ?)';
+                 await this.pool.query(queryInsert, [categoriaGeneral.name, idsDependientesJSON, nombresDependientesJSON]);
+                 datosAInsertar.push(`Insertada: ${categoriaGeneral.name}`);
+                    
             }
     
             return datosAInsertar;
