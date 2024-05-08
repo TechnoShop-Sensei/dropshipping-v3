@@ -26,7 +26,6 @@ const categoriasSeleccionadas = [
     "Cables, Conectores y Adaptadores",
     "Cámaras",
     "Cartuchos de Limpieza",
-    "Computadoras",
     "Computadoras de Escritorio",
     "Computadoras Portátiles",
     "Controladores de disco",

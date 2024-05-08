@@ -20,12 +20,36 @@ class PostCategorias {
         if (checkResult[0].count > 0) {
             // La categoría ya existe, no necesita ser agregada de nuevo
             return `LA CATEGORIA YA EXISTE - ${data.nombre}`;
-        } else {
+
+        }else {
             // Si no existe, inserta la nueva categoría
             const queryInsert = `INSERT INTO ingramCategorias (Nombre_Categoria_Ingram, id_bdi, parent_bdi, utilidad_por_Categoria) VALUES (?, ?, ?, 0)`;
             await this.pool.query(queryInsert, [data.nombre, data.id_categoria, data.parent_bdi]);
             return `SE HA AGREGADO UNA NUEVA CATEGORIA - ${data.nombre}`;
         }
+    }
+
+  // Método para eliminar categorías que ya no están en la lista seleccionada
+async eliminarCategoriasNoSeleccionadas(categoriasSeleccionadas) {
+    // Asumimos que 'categoriasEnBD' es una lista de objetos, cada uno con la propiedad 'Nombre_Categoria_Ingram'
+    const categoriasEnBD = await this.pool.query('SELECT Nombre_Categoria_Ingram FROM ingramCategorias');
+    
+    // Filtramos para asegurarnos de que no manipulamos datos indefinidos
+    const categoriasAEliminar = categoriasEnBD.filter(catBD => 
+        catBD.Nombre_Categoria_Ingram && // Asegura que 'Nombre_Categoria_Ingram' no sea undefined
+        !categoriasSeleccionadas.includes(catBD.Nombre_Categoria_Ingram.toUpperCase())
+    );
+
+    const promises = categoriasAEliminar.map(cat => this.eliminarCategoriaBD(cat.Nombre_Categoria_Ingram));
+    const results = await Promise.all(promises);
+    return results;
+}
+
+    // Método para eliminar una categoría específica de la base de datos
+    async eliminarCategoriaBD(nombreCategoria) {
+        const deleteQuery = `DELETE FROM ingramCategorias WHERE Nombre_Categoria_Ingram = ?`;
+        await this.pool.query(deleteQuery, [nombreCategoria]);
+        return `SE HA ELIMINADO LA CATEGORIA - ${nombreCategoria}`;
     }
 
     // ? Optimizar el Consumo querys de Connetions para Mysql = Connection 10
@@ -62,10 +86,15 @@ class PostCategorias {
                     parent_bdi: item.parent_id
                 }));
 
-            return this.agregarCategorias(categorias);
+                const resultadosAgregar = await this.agregarCategorias(categorias);
+
+                // Eliminar categorías que ya no están seleccionadas
+                const resultadosEliminar = await this.eliminarCategoriasNoSeleccionadas(categoriasSelect);
+        
+                return { resultadosAgregar, resultadosEliminar };
             
         } catch (error) {
-            console.error(error);
+            console.error(error.message);
             throw new Error('Error al agregar categorías');
         }
     }
