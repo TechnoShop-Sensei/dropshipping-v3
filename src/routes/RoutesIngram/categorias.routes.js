@@ -1,17 +1,17 @@
 const { Router } = require('express')
-const { categoriasPost, categoriasPostWoo, categoriasPutBD, categoriasPutWoo, categoriasGeneralesBD } = require('../../controllers/categorias/categorias.controller')
+const { categoriasPostBD, categoriasPostBDIdentify, categoriasPostIdentifyPrincipales,categoriasPostParentCategoria, categoriasUpdateInserWoo } = require('../../controllers/categorias/categoriasControllerIngram/categoriasIngram.controller')
 const router = Router();
 
 
-router.post('/categorias',  categoriasPost);
+router.post('/categorias',  categoriasPostBD);
 
-router.post('/categoriasWoo',  categoriasPostWoo);
+router.post('/categoriasIdentify',  categoriasPostBDIdentify);
 
-router.post('/categoriasparent',  categoriasPutBD);
+router.post('/categoriasPrincipales',  categoriasPostIdentifyPrincipales);
 
-router.post('/categoriasparentwoo',  categoriasPutWoo);
+router.post('/categoriasParent',  categoriasPostParentCategoria);
 
-router.post('/categoriasgenerales',  categoriasGeneralesBD);
+router.post('/categoriasUpdateInsert',  categoriasUpdateInserWoo);
 
 
 

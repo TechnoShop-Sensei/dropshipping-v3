@@ -1,13 +1,13 @@
-const configAPIWoo = require('../../woocommerce/configWooIngram/config.woo');
-const configAPIIngram = require('../../Ingram/config.ingram');
-const { urlProductosBDI } = require('../../Helpers/helpsIngram/rutas.bdi');
-const { urlCreateProductWoo, urlUpdateProductWoo } = require('../../Helpers/rutas.woocomerce');
-const { urlPricesIngram } = require('../../Helpers/helpsIngram/rutas.ingram');
+const configAPIWoo = require('../../../woocommerce/configWooIngram/config.woo');
+const configAPIIngram = require('../../../Ingram/config.ingram');
+const { urlProductosBDI } = require('../../../Helpers/helpsIngram/rutas.bdi');
+const { urlCreateProductWoo, urlUpdateProductWoo } = require('../../../Helpers/rutas.woocomerce');
+const { urlPricesIngram } = require('../../../Helpers/helpsIngram/rutas.ingram');
 
 const axios = require('axios');
-const pool = require('../../database/conexion');
+const pool = require('../../../database/conexion');
 const chunks = require('chunk-array').chunks
-const {abreviarYTraducir, procesarTexto, Uppercase, AgregarMarcaTitulo} = require('../../Helpers/setNameProduct')
+const {abreviarYTraducir, procesarTexto, Uppercase, AgregarMarcaTitulo} = require('../../../Helpers/setNameProduct')
 
 
 class PostProductos {

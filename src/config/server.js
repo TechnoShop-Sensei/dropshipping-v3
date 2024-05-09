@@ -5,8 +5,10 @@ class Server {
     constructor(){
         this.app = express();
         this.port  = process.env.PORT || 3000;
+        
         this.technoIngram = '/apibdi';
-        this.techno = '/apiprovedor';
+        this.technoProveedor = '/apiprovedor';
+
         this.tokenIngram = '/tokeningram'
         this.orderIngram = '/ordersIngram'
 
