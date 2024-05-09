@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { ImagenPost,ImagenPostWoo } = require('../controllers/imagen/imagen.controller');
+const { ImagenPost,ImagenPostWoo } = require('../../controllers/imagen/imagen.controller');
 
 
 const router = Router();

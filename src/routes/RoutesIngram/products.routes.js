@@ -1,6 +1,6 @@
 const { Router } = require('express')
 const { schedule } = require('node-cron')
-const { productosPostBD, productosPostWoo } = require('../controllers/products/products.controllers')
+const { productosPostBD, productosPostWoo } = require('../../controllers/products/products.controllers')
 
 const router = Router();
 

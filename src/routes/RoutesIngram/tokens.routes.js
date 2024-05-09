@@ -1,5 +1,5 @@
 const { Router } = require('express')
-const { tokenUpdateIngram, tokenUpdateBDI } = require('../controllers/token.controllers');
+const { tokenUpdateIngram, tokenUpdateBDI } = require('../../controllers/token.controllers');
 
 const router = Router();
 

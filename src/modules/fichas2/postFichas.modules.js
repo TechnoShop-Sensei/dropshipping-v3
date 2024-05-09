@@ -1,7 +1,7 @@
-const configAPIWoo = require('../../woo/config.woo');
+const configAPIWoo = require('../../woocommerce/configWooIngram/config.woo');
 const configAPIngram = require('../../Ingram/config.ingram');
-const { urlProductDetails } = require('../../Helpers/rutas.ingram');
-const { urlAPIFichas } = require('../../Helpers/rutas.apintegracion');
+const { urlProductDetails } = require('../../Helpers/helpsIngram/rutas.ingram');
+const { urlAPIFichas } = require('../../Helpers/helpsIngram/rutas.apintegracion');
 const { urlUpdateProductWoo } = require('../../Helpers/rutas.woocomerce');
 const axios = require('axios');
 const pool = require('../../database/conexion');

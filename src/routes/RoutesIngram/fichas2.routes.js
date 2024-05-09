@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { fichasPost, fichasPostData } = require('../controllers/fichas2/fichas2.controller');
+const { fichasPost, fichasPostData } = require('../../controllers/fichas2/fichas2.controller');
 
 const router = Router();
 

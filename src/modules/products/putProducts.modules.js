@@ -1,7 +1,7 @@
-const configAPIWoo = require('../../woo/config.woo');
+const configAPIWoo = require('../../woocommerce/configWooIngram/config.woo');
 const configAPIIngram = require('../../Ingram/config.ingram');
 const { urlUpdateProductWoo } = require('../../Helpers/rutas.woocomerce');
-const { urlPricesIngram } = require('../../Helpers/rutas.ingram');
+const { urlPricesIngram } = require('../../Helpers/helpsIngram/rutas.ingram');
 const axios = require('axios');
 const pool = require('../../database/conexion');
 const chunks = require('chunk-array').chunks

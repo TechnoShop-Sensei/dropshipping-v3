@@ -1,4 +1,4 @@
-const pool = require('../database/conexion')
+const pool = require('../../database/conexion')
 
 class ConsumirApiRestWoo {
     get headerWoo(){

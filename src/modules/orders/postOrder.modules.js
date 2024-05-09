@@ -1,5 +1,5 @@
-const { urlOrderIngramSandbox, urlOrderIngram } = require('../../Helpers/rutas.ingram');
-const { urlPricesIngram } = require('../../Helpers/rutas.ingram');
+const { urlOrderIngramSandbox, urlOrderIngram } = require('../../Helpers/helpsIngram/rutas.ingram');
+const { urlPricesIngram } = require('../../Helpers/helpsIngram/rutas.ingram');
 
 const configGeneral = require('../../Ingram/config.ingram')
 const axios = require('axios');

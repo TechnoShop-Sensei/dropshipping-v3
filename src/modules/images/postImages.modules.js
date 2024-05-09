@@ -1,6 +1,6 @@
-const configAPIWoo = require('../../woo/config.woo');
+const configAPIWoo = require('../../woocommerce/configWooIngram/config.woo');
 
-const { urlAPIImagenes } = require('../../Helpers/rutas.apintegracion');
+const { urlAPIImagenes } = require('../../Helpers/helpsIngram/rutas.apintegracion');
 const { urlUpdateProductWoo } = require('../../Helpers/rutas.woocomerce');
 const axios = require('axios');
 const pool = require('../../database/conexion');

@@ -1,5 +1,5 @@
-const configAPIWoo = require('../../woo/config.woo');
-const { urlCategoriasBDI } = require('../../Helpers/rutas.bdi')
+const configAPIWoo = require('../../woocommerce/configWooIngram/config.woo');
+const { urlCategoriasBDI } = require('../../Helpers/helpsIngram/rutas.bdi')
 const { urlCreateCategoriasWoo, urlupdateCategoriasWoo, urlUpdateCategoriasWoo } = require('../../Helpers/rutas.woocomerce');
 const axios = require('axios');
 const pool = require('../../database/conexion');

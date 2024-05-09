@@ -1,6 +1,6 @@
 const configIngram = require('./config.ingram.js')
 const axios = require('axios');
-const { urlTokenIngram } = require('../Helpers/rutas.ingram');
+const { urlTokenIngram } = require('../Helpers/helpsIngram/rutas.ingram.js');
 const pool = require('../database/conexion')
 
 /* CREATE TOKEN */
