@@ -4,9 +4,8 @@ const pool = require('../../../database/conexion');
 
 class AbasteoScraper {
   constructor(pool) {
-    this.pool = pool
+    this.pool = pool;
   }
-
 
   async init() {
     this.browser = await puppeteer.launch({
@@ -16,19 +15,19 @@ class AbasteoScraper {
   }
 
   async fetchPartNumbers() {
-    const [rows] = await this.pool.execute('SELECT VPN, sku, id FROM part_numbers'); // Ajusta esta consulta según tu esquema de base de datos
+    const [rows] = await this.pool.execute('SELECT Modelo, Sku_ingram, id_producto FROM ingramProductosv2'); // Ajusta esta consulta según tu esquema de base de datos
     return rows;
   }
 
-  async saveResultToDatabase(id, sku, VPN, title) {
+  async saveResultToDatabase(id, title) {
     try {
       const [result] = await this.pool.execute(
-        'INSERT INTO results (id, sku, VPN, title) VALUES (?, ?, ?, ?)',
-        [id, sku, VPN, title]
+        'UPDATE ingramProductosv2 SET Nombre_Optimatizado = ? WHERE id_producto = ?',
+        [title, id]
       );
-      console.log(`Resultado guardado: ${result.insertId}`);
+      console.log(`Resultado actualizado para ID: ${id}`);
     } catch (error) {
-      console.error(`Error al guardar el resultado en la base de datos: ${error}`);
+      console.error(`Error al actualizar el resultado en la base de datos: ${error}`);
     }
   }
 
@@ -38,11 +37,11 @@ class AbasteoScraper {
   }
 
   async scrapePartNumber(partNumber) {
-    const { VPN, sku, id } = partNumber;
+    const { Modelo, Sku_ingram, id_producto } = partNumber;
     try {
       await this.page.goto('https://www.abasteo.mx');
       await this.page.waitForTimeout(3000);
-      await this.page.type('input[name="searchparam"]', VPN);
+      await this.page.type('input[name="searchparam"]', Modelo);
       await this.page.waitForTimeout(3000);
       await this.page.waitForSelector('button.cpx-button-new.cpx-button-new--primary.c-header-search__button', { visible: true });
 
@@ -57,18 +56,17 @@ class AbasteoScraper {
         return titleElement ? titleElement.innerText : 'Título no encontrado';
       });
 
-      if (output.includes('resultados') || title === 'Título no encontrado') {
-        await this.saveMissingToFile(id, sku, VPN);
+      if (title.includes('resultados') || title === 'Título no encontrado') {
+        await this.saveMissingToFile(id_producto, Sku_ingram, Modelo);
       } else {
-        const output = `${id}, ${sku}, ${VPN} TITULO: ${title}\n`;
-        console.log(output);
-        await this.saveResultToDatabase(id, sku, VPN, title);
+        console.log(`${id_producto}, ${Sku_ingram}, ${Modelo} TITULO: ${title}`);
+        await this.saveResultToDatabase(id_producto, title);
         await this.page.waitForTimeout(2500);
       }
 
     } catch (error) {
-      console.error(`Error con el número de parte ${VPN}: ${error}`);
-      await this.saveMissingToFile(id, sku, VPN);
+      console.error(`Error con el número de parte ${Modelo}: ${error}`);
+      await this.saveMissingToFile(id_producto, Sku_ingram, Modelo);
     }
   }
 
@@ -82,7 +80,6 @@ class AbasteoScraper {
   }
 }
 
-
 // Uso de la clase
 (async () => {
   const scraper = new AbasteoScraper(pool);
@@ -90,3 +87,8 @@ class AbasteoScraper {
   await scraper.init();
   await scraper.scrapeAll();
 })();
+
+// Implementación de waitForTimeout
+puppeteer.Page.prototype.waitForTimeout = function (timeout) {
+  return new Promise(resolve => setTimeout(resolve, timeout));
+};

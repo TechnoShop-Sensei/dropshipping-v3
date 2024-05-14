@@ -23,6 +23,7 @@
     "mysql2": "^3.9.2",
     "node-cron": "^3.0.3",
     "p-limit": "^5.0.0",
-    "parse-json": "^8.1.0"
+    "parse-json": "^8.1.0",
+    "puppeteer": "^22.8.1"
   }
 }
