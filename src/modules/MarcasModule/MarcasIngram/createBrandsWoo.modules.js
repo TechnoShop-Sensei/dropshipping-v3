@@ -14,7 +14,7 @@ class postMarcasIdentify {
             const configHeaders = new configAPIWoo();
             const config = await configHeaders.clavesAjusteGeneral();
             const querySelect = `SELECT * FROM wooMarcasNew`
-            const [rows] = await pool.query(querySelect);
+            const [rows] = await this.pool.query(querySelect);
     
             const marcasList = rows.map(marca => {
                 return { 
@@ -34,7 +34,7 @@ class postMarcasIdentify {
                         const idmarca = element.id;
                         const nombreMarca = element.name;
                         const queryUpdate = `UPDATE wooMarcasNew SET id_woocommerce = ? WHERE Nombre_Marca_Principal = ?`;
-                        await pool.query(queryUpdate, [idmarca, nombreMarca]);
+                        await this.pool.query(queryUpdate, [idmarca, nombreMarca]);
                         return `Se Agrego una Marca con el ID: ${idmarca}, Nombre: ${nombreMarca}`;
                     });
     

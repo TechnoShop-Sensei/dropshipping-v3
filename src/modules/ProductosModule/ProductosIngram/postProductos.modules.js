@@ -15,6 +15,7 @@ class PostProductos {
         this.pool = pool;
     }
 
+
     async agregarProductosBD(){
         try {
             const response = await axios.get(urlProductosBDI);
@@ -55,41 +56,49 @@ class PostProductos {
     async insertarProducto(producto) {
         try {
             const [ComprobarExiste] = await this.pool.query('SELECT * FROM ingramProductosv2 WHERE Sku_ingram = ?', [producto.sku]);
+            
             if(ComprobarExiste.length > 0){
                 return `El producto con SKU: ${producto.sku} ya existe en la base de datos.`;
             }else{
-                const dimension_peso = producto.weight ? parseFloat(producto.weight) : 0;
-                const dimension_length = producto.length ? parseFloat(producto.length) : 0;
-                const dimension_width = producto.width ? parseFloat(producto.width) : 0;
-                const dimension_height = producto.height ? parseFloat(producto.height) : 0;
+                let statusValor = 'publish'
+                let visibility = 'hidden'
+                let cantidad = 0;
+                let precioFinal = 0;
+                let precioIngram = 0;
+                let precioConUtilidad = 0;
 
-                const [marcas_ID] = await this.pool.query('SELECT Nombre_Optimatizado FROM ingramMarcas Where id_bdi = ?', [producto.id_marca]);
-        
-                let detalles = "";
-                detalles += producto.id_marca ? `<strong>Marca:</strong> ${ marcas_ID[0].Nombre_Optimatizado }<br>` : "";
-                detalles += producto.sku ? `<strong>SKU:</strong> ${producto.sku}<br>` : "";
-                detalles += producto.codigo_fabricante ? `<strong>Modelo:</strong> ${producto.codigo_fabricante}<br>` : "";
-        
-                const querySelectMarcas = `SELECT id_woocomerce_marca FROM ingramMarcas WHERE id_bdi = '${producto.id_marca}'`;
-                const querySelectCategorias = `SELECT id_woocomerce_categoria, Parent FROM ingramCategorias WHERE id_bdi = '${producto.id_categoria}'`;
-        
-                const [marca] = await this.pool.query(querySelectMarcas);
-                const [categoria] = await this.pool.query(querySelectCategorias);
-        
-                const sku = producto.sku;
-                const TituloFormateado = producto.tituloIngram ? producto.tituloIngram.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ') : '';
-                const SlugFormateado = producto.tituloOptimizado
-                const regular_price = 0; // Asume un precio regular de 0 si no se proporciona
-                const statusValor = 'publish';
-                const visibilty = 'hidden';
-                const cantidad = 0; // Asume una cantidad de 0 si no se proporciona
-        
+                const dimension_peso = producto.weight ? parseFloat(producto.weight) : 0; // Peso
+                const dimension_length = producto.length ? parseFloat(producto.length) : 0; // Longitud
+                const dimension_width = producto.width ? parseFloat(producto.width) : 0; // Ancho
+                const dimension_height = producto.height ? parseFloat(producto.height) : 0; // Altura
+
+                const [categorias_ID] = await this.pool.query(`SELECT * FROM wooCategoriasNew2 Where id_ingram_Categorias = "BDI_${producto.id_categoria}"`);
+                const [marcas_ID] = await this.pool.query(`SELECT * FROM wooMarcasNew WHERE id_ingram_Marcas = "BDI_${producto.id_marca}"`)
                 
-                // Inserta en la base de datos
-                const queryInsert = `INSERT INTO ingramProductosv2 (Sku_ingram, Nombre, Nombre_Optimatizado, Precio_Ingram, Precio_Ingram_Utilidad, Precio_Final, Status_Woocommerce, Catalog_visibility_Woo, Cantidad, Peso, Longitud, Ancho, Altura, id_marca, id_categoria, id_subcategoria, Descripcion_corta, Utilidad_por_Producto) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-                const values = [sku, TituloFormateado, SlugFormateado, regular_price, 0, 0, statusValor, visibilty, cantidad, dimension_peso, dimension_length, dimension_width, dimension_height, marca[0]?.id_woocomerce_marca, categoria[0]?.id_woocomerce_categoria, categoria[0]?.Parent, detalles, 0];
-                await this.pool.query(queryInsert, values);
-                return `Se ha Agregado SKU: ${sku}, De Nombre: ${TituloFormateado}`;
+ 
+                const marcaID = marcas_ID[0].id_woocommerce;
+                const categoriaPadre = categorias_ID[0].id_woocommerce
+                const subcategoria = categorias_ID[0].id_parent_woocommerce
+                 // Selecciona 'tituloOptimizado' si existe y no está vacío, de lo contrario selecciona 'tituloIngram'
+                const titulo = producto.tituloOptimizado || producto.tituloIngram;
+                
+                // Limpia y capitaliza el título
+                const tituloLimpioCapitalizado = this.capitalizarTitulo(titulo);
+                
+
+                const sku = producto?.sku
+             
+                try {
+                    const queryInsert = `INSERT INTO ingramProductosv2 (Sku_ingram, Nombre, Precio_Ingram, Precio_Ingram_Utilidad, Precio_Final, Status_Woocommerce, Catalog_visibility_Woo, Cantidad, Peso, Longitud, Ancho, Altura, id_marca, id_categoria, id_subcategoria,Utilidad_por_Producto) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                    const values = [sku, tituloLimpioCapitalizado, precioIngram, precioConUtilidad, precioFinal, statusValor, visibility, cantidad, dimension_peso, dimension_length , dimension_width, dimension_height, marcaID, categoriaPadre, subcategoria, 0];
+                    await pool.query(queryInsert, values);
+                    
+                    
+                    return `Se ha Agregado SKU: ${ producto.sku }, De Nombre: ${ tituloLimpioCapitalizado }`;
+                } catch (error) {
+                    return `Error al cargar Producto: ${ producto.sku } --- ${ error.message }`;
+                }
+
             }
         } catch (error) {
             return `Error al cargar Producto: ${producto.sku} --- ${error.message}`;
@@ -97,92 +106,26 @@ class PostProductos {
     }
 
 
-    async agregarProductosWoo () {
-        try {
-            const configHeader = new configAPIWoo();
-            const config = await configHeader.clavesAjusteGeneral();
-            const querySelect = `SELECT * FROM ingramProductosv2 as pr INNER JOIN ingramMarcas as mr on pr.id_marca = mr.id_woocomerce_marca`;
-            const [rows] = await this.pool.query(querySelect);
+     // Función para capitalizar cada palabra en una cadena, excepto palabras específicas
+     capitalizarTitulo(titulo) {
+        const excepciones = ['USB', 'HDMI', 'PS2', 'DVD', 'SSD'];  // Añade más excepciones tecnológicas según sea necesario
+        const palabrasEnMinusculas = ['y', 'las', 'de', 'a'];  // Palabras que deben estar en minúsculas
 
-            const productosList = rows.map(products => {
-                return {
-                    //id: products.id,
-                    name: products.Nombre,
-                    sku: products.Sku_ingram,
-                    status: products.Status_Woocommerce,
-                    catalog_visibility: products.Catalog_visibility_Woo,
-                    short_description: products.Descripcion_corta,
-                    regular_price: products.Precio_Ingram,
-                    tax_status: "taxable",
-                    manage_stock: true,
-                    stock_quantity: products.Cantidad,
-                    stock_status: "outofstock",
-                    backorders: "no",
-                    reviews_allowed: false,
-                    low_stock_amount: 1,
-                    weight: products.Peso,
-                    dimensions: {
-
-                        length: products.Longitud,
-                        width: products.Ancho,
-                        height: products.Altura
-                    },
-                    categories: [
-                        {
-                            id: products.id_categoria
-                        },
-                        {
-                            id: products.id_subcategoria
-                        }
-                    ],
-                    attributes: [
-                        {
-                            id: 3,
-                            name: "Marcas",
-                            position: 0,
-                            visible: true,
-                            variation: false,
-                            options: [
-                                products.Nombre_Optimatizado
-                            ]
-                        }
-                    ]    
+        // Capitalizar cada palabra, manejar excepciones específicas y palabras comunes
+        return titulo
+            .replace(/\s+/g, ' ')
+            .trim()
+            .split(' ')
+            .map((palabra, index, palabras) => {
+                if (excepciones.includes(palabra.toUpperCase())) {
+                    return palabra.toUpperCase();  // Mantener la palabra en mayúsculas si está en la lista de excepciones tecnológicas
+                } else if (palabrasEnMinusculas.includes(palabra.toLowerCase()) && index !== 0 && !palabras[index - 1].endsWith('.')) {
+                    return palabra.toLowerCase();  // Palabras comunes en minúsculas excepto al inicio o después de un punto
+                } else {
+                    return palabra.charAt(0).toUpperCase() + palabra.slice(1).toLowerCase();  // Capitalizar la primera letra y el resto en minúsculas
                 }
-            });
-
-            let productosRows = chunks(productosList, 100);
-            let msg = [];
-    
-            for (let productsChunk of productosRows) {
-                try {
-                    const datos = { 
-                        create: productsChunk 
-                    };
-                    const creandoProduct = await axios.post(urlCreateProductWoo, datos, config);
-                    
-                    // Procesar las actualizaciones de la base de datos en lotes
-                    for (let i = 0; i < creandoProduct.data.create.length; i += 5) {
-                        const batch = creandoProduct.data.create.slice(i, i + 5);
-                        await Promise.all(batch.map(async element => {
-                            const idproduct = element.id;
-                            const skuProduct = element.sku;
-                            const queryUpdate = `Update tbl_productos SET id_woocommerce_producto = ? WHERE Sku_ingram = ?`;
-                            await this.pool.query(queryUpdate, [idproduct, skuProduct]);
-                            
-                            msg.push(`Se agrego un nuevo Producto: ${element.name}, short ${element.short_description}`);
-                        }));
-                    }
-                } catch (error) {
-                    console.error(`Error al cargar producto - ${error}`);
-                    msg.push(`Error al cargar producto - ${error}`);
-                }
-            }
-    
-            return msg;
-        } catch (error) {
-            console.error(error);
-            throw error;
-        }
+            })
+            .join(' ');
     }
 
 

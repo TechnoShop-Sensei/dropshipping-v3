@@ -82,56 +82,7 @@ class PutProducts {
         
     }
 
-    async UpdateProductPricesAndSockWoo(){
-        try {
-            const configWoo = new configAPIWoo();
-
-            const config = await configWoo.clavesAjusteGeneral();
-
-            console.log(config);
-
-            const querySelect = `SELECT * FROM tbl_productos`;
-
-            const [row] = await pool.query(querySelect);
-
-            const data = row.map((item) => {
-                return {
-                    id: item.id,
-                    status: item.status,
-                    catalog_visibility: item.catalog_visibility,
-                    stock_quantity: item.quantity,
-                    reviews_allowed: false
-                }
-            })
-
-            const productsRows = chunks(data,100);
-
-            let msg = []
-            let i = 0
-            
-            const requests = productsRows.map(async (product) => {
-                try {
-                    let data = {
-                        update: product
-                    }
-    
-                    await axios.post(urlUpdateProductWoo, data, config);
-                    i++
-                    console.log(`Se actualizo correctamente en Woo: -- ${ i }`);
-                    msg.push(`Se actualizo correctamente en Woo: -- ${ i }`);
-                } catch (error) {
-                    msg.push(`Tienes un error: ${ error }`)
-                    throw error
-                }
-            });
-
-            await Promise.all(requests);
-
-            return msg
-        } catch (error) {
-            throw error
-        }
-    }
+  
 }
 
 module.exports = PutProducts

@@ -1,30 +1,29 @@
 const configAPIWoo = require('../../../woocommerce/configWooIngram/config.woo');
 const { urlCreateCategoriasWoo, urlupdateCategoriasWoo, urlUpdateCategoriasWoo } = require('../../../Helpers/rutas.woocomerce');
 const axios = require('axios');
-const pool = require('../../../database/conexion');
 
 const chunks = require('chunk-array').chunks
 
-class PostCategoriasBD {
+class PutAndAddCategoriasWoo {
     constructor(pool) {
         this.pool = pool;
     }
 
 
 // ? Agregar Categoria General a Woocommerce y Obtener ID
-    async postCategoriasWoo(){
+    async postCategoriasInsertWoo(){
         try {
             const configHeader = new configAPIWoo();
 
             const config = await configHeader.clavesAjusteGeneral();
 
+            const querySelectCategorias = `SELECT * FROM wooCategoriasNew2`;
+            const [rows] = await this.pool.query(querySelectCategorias);
 
-            const querySelect = `SELECT * FROM wooCategoriasNew`;
-            const [rows] = await pool.query(querySelect);
-
-            const nameCategoria = rows.map(marca => {
+            const nameCategoria = rows.map(categoria => {
                 return {
-                    name: marca.nombre_categoria_principal,
+                    name: categoria.Nombre_Categoria,
+                    description: `El ID dependiente es: ${categoria.id_ingram_Categorias}`
                 }
             })
 
@@ -39,18 +38,65 @@ class PostCategoriasBD {
                     
                     const creandoCategoria = await axios.post(urlCreateCategoriasWoo, datos, config);
                     
-                    creandoCategoria.data.create.forEach(async element => {
+                    creandoCategoria.data.create.forEach(async create => {
                         
-                        const idCategoria = element.id;
-                        const NombreCategoria = element.name;
+                        const idCategoria = create.id;
+                        const NombreCategoria = create.name;
 
-                        const queryUpdate = `Update wooCategoriasNew SET id_woocoommerce = ? WHERE nombre_categoria_principal = ?`;
+                        const queryUpdate = `Update wooCategoriasNew2 SET id_woocommerce = ? WHERE Nombre_Categoria = ?`;
                         const values = [idCategoria, NombreCategoria];
-                        await pool.query(queryUpdate, values);
+                        await this.pool.query(queryUpdate, values);
 
-                        msg.push(`Se agrego un Categoria: ${ element.name }`)
-                        console.log(`Se agrego un Categoria: ${ element.name }`);
+                        msg.push(`Se agrego un Categoria: ${ create.name }`)
+                        console.log(`Se agrego un Categoria: ${ create.name }`);
                     });
+                
+                    
+                } catch (error) {
+                    console.error(`Error al cargar la Categoria - ${error}`);
+                    msg.push(`Error al cargar la Categoria - ${error}`);
+                }
+            });
+            await Promise.all(promises)
+
+            return msg
+
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // ? Actualizar Categorias en Woocommerce si tienen Parent
+    async postCategoriasUpdateWoo(){
+        try {
+            const configHeader = new configAPIWoo();
+
+            const config = await configHeader.clavesAjusteGeneral();
+
+
+            const querySelectUpdate = `SELECT * FROM wooCategoriasNew2`;
+            const [rows] = await this.pool.query(querySelectUpdate);
+
+            const nameCategoria = rows.map(categoria => {
+                return {
+                    id: categoria.id_woocommerce,
+                    parent: categoria.id_parent_woocommerce
+                }
+            })
+
+            let categoriasRows = chunks(nameCategoria, 100);
+            const msg = [];
+
+            const promises =  categoriasRows.map(async (categorias)=> {
+                try {
+                    const datos = { 
+                        update: categorias
+                    };
+                    
+                    const creandoCategoria = await axios.post(urlCreateCategoriasWoo, datos, config);
+                    
+                    msg.push(`Se Actualizo una Categoria: ${ creandoCategoria.data.update.name }`)
+                    console.log(`Se Actualizo una Categoria: ${ creandoCategoria.data.update.name }`);
                 
                     
                 } catch (error) {
@@ -69,4 +115,4 @@ class PostCategoriasBD {
 
 }
 
-module.exports = PostCategoriasBD
+module.exports = PutAndAddCategoriasWoo

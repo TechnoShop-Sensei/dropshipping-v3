@@ -1,6 +1,5 @@
 const { Router } = require('express')
-const { schedule } = require('node-cron')
-const { productosPostBD, productosPostWoo } = require('../../controllers/products/products.controllers')
+const { productosPostBD,  productosCreateWoo, productosUpdateWoo} = require('../../controllers/products/productosControllerIngram/products.controllers')
 
 const router = Router();
 
@@ -8,7 +7,9 @@ const router = Router();
 
 router.post('/products',  productosPostBD);// Agrega Productos Ingram en Base de Datos
 
-router.post('/productswoo',  productosPostWoo); // Agrega Productos en Woocomerce
+router.post('/productswoo',  productosCreateWoo); // Agrega Productos en Woocomerce
+
+router.post('/productsupdatewoo',  productosUpdateWoo); // Actualizar Titulo Productos en Woocomerce
 
 
 

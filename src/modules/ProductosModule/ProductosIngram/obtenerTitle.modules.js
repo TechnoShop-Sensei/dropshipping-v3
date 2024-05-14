@@ -1,0 +1,92 @@
+const puppeteer = require('puppeteer');
+const fs = require('fs');
+const pool = require('../../../database/conexion');
+
+class AbasteoScraper {
+  constructor(pool) {
+    this.pool = pool
+  }
+
+
+  async init() {
+    this.browser = await puppeteer.launch({
+      // Opciones de lanzamiento...
+    });
+    this.page = await this.browser.newPage();
+  }
+
+  async fetchPartNumbers() {
+    const [rows] = await this.pool.execute('SELECT VPN, sku, id FROM part_numbers'); // Ajusta esta consulta según tu esquema de base de datos
+    return rows;
+  }
+
+  async saveResultToDatabase(id, sku, VPN, title) {
+    try {
+      const [result] = await this.pool.execute(
+        'INSERT INTO results (id, sku, VPN, title) VALUES (?, ?, ?, ?)',
+        [id, sku, VPN, title]
+      );
+      console.log(`Resultado guardado: ${result.insertId}`);
+    } catch (error) {
+      console.error(`Error al guardar el resultado en la base de datos: ${error}`);
+    }
+  }
+
+  async saveMissingToFile(id, sku, VPN) {
+    const missing = `${id}, ${sku}, ${VPN}\n`;
+    fs.appendFileSync('zero.txt', missing);
+  }
+
+  async scrapePartNumber(partNumber) {
+    const { VPN, sku, id } = partNumber;
+    try {
+      await this.page.goto('https://www.abasteo.mx');
+      await this.page.waitForTimeout(3000);
+      await this.page.type('input[name="searchparam"]', VPN);
+      await this.page.waitForTimeout(3000);
+      await this.page.waitForSelector('button.cpx-button-new.cpx-button-new--primary.c-header-search__button', { visible: true });
+
+      // Inicia la navegación
+      await Promise.all([
+        this.page.waitForNavigation({ waitUntil: 'networkidle0' }), // Espera hasta que la navegación haya terminado
+        this.page.click('button.cpx-button-new.cpx-button-new--primary.c-header-search__button'), // Hace clic en el botón que inicia la navegación
+      ]);
+
+      const title = await this.page.evaluate(() => {
+        const titleElement = document.querySelector('h1.cpx-h1.cpx-h1--dark'); // Actualiza esto con el selector correcto de Abasteo
+        return titleElement ? titleElement.innerText : 'Título no encontrado';
+      });
+
+      if (output.includes('resultados') || title === 'Título no encontrado') {
+        await this.saveMissingToFile(id, sku, VPN);
+      } else {
+        const output = `${id}, ${sku}, ${VPN} TITULO: ${title}\n`;
+        console.log(output);
+        await this.saveResultToDatabase(id, sku, VPN, title);
+        await this.page.waitForTimeout(2500);
+      }
+
+    } catch (error) {
+      console.error(`Error con el número de parte ${VPN}: ${error}`);
+      await this.saveMissingToFile(id, sku, VPN);
+    }
+  }
+
+  async scrapeAll() {
+    const partNumbers = await this.fetchPartNumbers();
+    for (const partNumber of partNumbers) {
+      await this.scrapePartNumber(partNumber);
+    }
+    await this.browser.close();
+    await this.pool.end();
+  }
+}
+
+
+// Uso de la clase
+(async () => {
+  const scraper = new AbasteoScraper(pool);
+
+  await scraper.init();
+  await scraper.scrapeAll();
+})();
