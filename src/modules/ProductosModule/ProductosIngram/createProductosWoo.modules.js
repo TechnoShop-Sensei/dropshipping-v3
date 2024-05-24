@@ -15,11 +15,14 @@ class PostProductosWoo {
         this.pool = pool;
     }
 
-    async agregarProductosWoo () {
+    async agregarProductosWoo() {
         try {
             const configHeader = new configAPIWoo();
             const config = await configHeader.clavesAjusteGeneral();
-            const querySelect = `SELECT * FROM ingramProductosv2 as pr INNER JOIN wooMarcasNew as mr on pr.id_marca = mr.id_woocommerce`;
+            const querySelect = `SELECT * FROM ingramProductosv2 as pr 
+                                 INNER JOIN wooMarcasNew as mr 
+                                 ON pr.id_marca = mr.id_woocommerce
+                                 WHERE pr.id_woocommerce_producto IS NULL`;
             const [rows] = await this.pool.query(querySelect);
     
             const productosList = rows.map(products => {
@@ -61,7 +64,7 @@ class PostProductosWoo {
                                 products.Nombre_Marca_Principal
                             ]
                         }
-                    ]    
+                    ]
                 };
             });
     
@@ -93,6 +96,7 @@ class PostProductosWoo {
             throw error;
         }
     }
+    
     
 
 

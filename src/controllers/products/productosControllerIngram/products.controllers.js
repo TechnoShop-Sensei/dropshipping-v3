@@ -41,21 +41,6 @@ const productUpdateAll = new productUpdate(pool)
     });
   }
 
-  // ? Actualizar Titulo de Productos a Woocomerce
-  const productosUpdateWoo = async(req = request, res = response) => {
-    productActionWoo.UpdateProductTituloWoo()
-    .then(msg => {
-        console.log(msg);
-        res.status(201).json({
-              mensaje: 'Post Api - Agregando Productos a Woocommerce',
-              datos: msg
-          })
-    })
-    .catch(error => {
-        console.error(error);
-    });
-  }
-
   //* METODOS DE ACTUALIZAR PRECIOS Y STOCK
   const productosPricesandStock = async(req = request, res = response) => {
     productPriceStock.UpdateProductPricesBD()
@@ -124,7 +109,6 @@ const productUpdateAll = new productUpdate(pool)
 module.exports = {
   productosPostBD,
   productosCreateWoo,
-  productosUpdateWoo,
 
   productosPricesandStock,
   productosPricesandStockWoo,

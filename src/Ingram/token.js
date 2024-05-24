@@ -3,7 +3,7 @@ const axios = require('axios');
 const { urlTokenIngram } = require('../Helpers/helpsIngram/rutas.ingram.js');
 const pool = require('../database/conexion')
 
-/* CREATE TOKEN */
+// ? CREATE TOKEN Ingram 
 class TokenIngram {
 
     // ? Crear Token Ingram - Acccion Generando Token y almacenar en BD
