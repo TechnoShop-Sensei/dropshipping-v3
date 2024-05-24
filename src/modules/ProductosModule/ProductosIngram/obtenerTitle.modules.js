@@ -15,7 +15,7 @@ class AbasteoScraper {
   }
 
   async fetchPartNumbers() {
-    const [rows] = await this.pool.execute('SELECT Modelo, Sku_ingram, id_producto FROM ingramProductosv2'); // Ajusta esta consulta según tu esquema de base de datos
+    const [rows] = await this.pool.execute('SELECT Modelo, Sku_ingram, id_producto FROM ingramProductosv2');
     return rows;
   }
 
@@ -47,12 +47,12 @@ class AbasteoScraper {
 
       // Inicia la navegación
       await Promise.all([
-        this.page.waitForNavigation({ waitUntil: 'networkidle0' }), // Espera hasta que la navegación haya terminado
-        this.page.click('button.cpx-button-new.cpx-button-new--primary.c-header-search__button'), // Hace clic en el botón que inicia la navegación
+        this.page.waitForNavigation({ waitUntil: 'networkidle0' }),
+        this.page.click('button.cpx-button-new.cpx-button-new--primary.c-header-search__button'),
       ]);
 
       const title = await this.page.evaluate(() => {
-        const titleElement = document.querySelector('h1.cpx-h1.cpx-h1--dark'); // Actualiza esto con el selector correcto de Abasteo
+        const titleElement = document.querySelector('h1.cpx-h1.cpx-h1--dark');
         return titleElement ? titleElement.innerText : 'Título no encontrado';
       });
 

@@ -1,11 +1,11 @@
 const { Router } = require('express');
-const { ImagenPost,ImagenPostWoo } = require('../../controllers/imagen/imagen.controller');
+const { ImagenAgregarWoo, ImagenCrearBD } = require('../../controllers/imagen/ImagenControllerIngram/imagen.controller');
 
 
 const router = Router();
 
-router.get('/imagen', ImagenPost);
-router.get('/imagenwoo', ImagenPostWoo );
+router.get('/imagenesaddbd', ImagenCrearBD);
+router.get('/imagenaddwoo', ImagenAgregarWoo );
 
 
 

@@ -3,20 +3,25 @@ const configAPIIngram = require('../../../Ingram/config.ingram');
 const { urlUpdateProductWoo } = require('../../../Helpers/rutas.woocomerce');
 const { urlPricesIngram } = require('../../../Helpers/helpsIngram/rutas.ingram');
 const axios = require('axios');
-const pool = require('../../../database/conexion');
 const chunks = require('chunk-array').chunks
 
-class PutProducts {
+class PutProductsPricesandStock {
+    constructor(pool){
+        this.pool = pool;
+    }
 
     async UpdateProductPricesBD(){
         try {
             const configIngram = new configAPIIngram();
             const config = await configIngram.configHeaderGeneral();
-            const queryListSku = `SELECT * FROM tbl_productos`;
+
+            const queryListSku = `SELECT * FROM ingramProductosv2`;
+
             const [rows] = await pool.query(queryListSku);
         
-            let data = rows.map(item => ({ ingramPartNumber: item.sku }));
+            let data = rows.map(item => ({ ingramPartNumber: item.Sku_ingram }));
             const productsRows = chunks(data, 50);
+
             let msg = [];
         
             await Promise.all(productsRows.map(async (iterator) => {
@@ -35,8 +40,8 @@ class PutProducts {
                         const statusChange = "publish";
                         const visibility = qty > 0 ? "visible" : "hidden";
         
-                        const queryUtilidadGeneral = `SELECT * FROM tbl_utilidades WHERE id = 1`;
-                        const queryUtilidades = `SELECT pr.utilidad_Product, ct.utilidad_Categoria, mr.utilidad_Marca FROM tbl_productos AS pr INNER JOIN tbl_categorias AS ct ON pr.id_categoria = ct.id INNER JOIN tbl_marcas AS mr ON pr.id_marca = mr.id WHERE pr.sku = ?`;
+                        const queryUtilidadGeneral = `SELECT * FROM ingramUtilidadesGeneral WHERE id_utilidades_ingram = 1`;
+                        const queryUtilidades = `SELECT pr.Utilidad_por_Producto, ct.Utilidad_por_Categoria, mr.Utilidad_por_Marca FROM ingramProductosv2 AS pr INNER JOIN wooCategoriasNew2 AS ct ON pr.id_categoria = ct.id_woocommerce INNER JOIN wooMarcasNew AS mr ON pr.id_marca = mr.id_woocommerce WHERE pr.Sku_ingram = ?`;
         
                         const [utilidad_General] = await pool.query(queryUtilidadGeneral);
                         const [utilidades] = await pool.query(queryUtilidades, [PartNumber]);
@@ -61,11 +66,14 @@ class PutProducts {
                             console.log("No hay utilidad")
                         }
 
+                        const IVA = 1.16
+
                         const prices = pricesIngram * utilidad;
+                        const prices_final = (prices * utilidad) * IVA
                         const cantidadTotal = qty;
         
-                        const queryUpdate = `UPDATE tbl_productos SET price = ?, status = ?, catalog_visibility = ?, quantity = ? WHERE sku = ?`;
-                        const values = [prices.toFixed(5), statusChange, visibility, cantidadTotal, PartNumber];
+                        const queryUpdate = `UPDATE ingramProductosv2 SET Precio_Ingram = ?, Precio_Ingram_Utilidad = ?, Precio_Final = ?, Status_Woocommerce = ?, Catalog_visibility_Woo = ?, Cantidad = ? WHERE Sku_ingram = ?`;
+                        const values = [pricesIngram.toFixed(5), prices.toFixed(5), prices_final.toFixed(5), statusChange, visibility, cantidadTotal, PartNumber];
                         await pool.query(queryUpdate, values);
         
                         msg.push(`Se actualizo correctamente los precios y stock-- ${PartNumber} -- ${ prices }`);
@@ -82,7 +90,58 @@ class PutProducts {
         
     }
 
+    
+    async UpdateProductPricesAndSockWoo(){
+        try {
+            const configWoo = new configAPIWoo();
+            const config = await configWoo.clavesAjusteGeneral();
+
+            console.log(config);
+
+            const querySelect = `SELECT * FROM ingramProductosv2`;
+
+            const [row] = await this.pool.query(querySelect);
+
+            const data = row.map((item) => {
+                return {
+                    id: item.id_woocommerce_producto,
+                    status: item.Status_Woocommerce,
+                    regular_price: item.Precio_Ingram_Utilidad,
+                    catalog_visibility: item.Catalog_visibility_Woo,
+                    stock_quantity: item.Cantidad,
+                    reviews_allowed: true
+                }
+            })
+
+            const productsRows = chunks(data,100);
+
+            let msg = []
+            let i = 0
+            
+            const requests = productsRows.map(async (product) => {
+                try {
+                    let data = {
+                        update: product
+                    }
+    
+                    await axios.post(urlUpdateProductWoo, data, config);
+                    i++
+                    console.log(`Se actualizo correctamente en Woo: -- ${ i }`);
+                    msg.push(`Se actualizo correctamente en Woo: -- ${ i }`);
+                } catch (error) {
+                    msg.push(`Tienes un error: ${ error }`)
+                    throw error
+                }
+            });
+
+            await Promise.all(requests);
+
+            return msg
+        } catch (error) {
+            throw error
+        }
+    }
   
 }
 
-module.exports = PutProducts
+module.exports = PutProductsPricesandStock

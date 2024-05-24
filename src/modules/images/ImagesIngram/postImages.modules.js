@@ -1,12 +1,15 @@
-const configAPIWoo = require('../../woocommerce/configWooIngram/config.woo');
+const configAPIWoo = require('../../../woocommerce/configWooIngram/config.woo');
 
-const { urlAPIImagenes } = require('../../Helpers/helpsIngram/rutas.apintegracion');
-const { urlUpdateProductWoo } = require('../../Helpers/rutas.woocomerce');
+const { urlAPIImagenes } = require('../../../Helpers/helpsIngram/rutas.apintegracion');
+const { urlUpdateProductWoo } = require('../../../Helpers/rutas.woocomerce');
 const axios = require('axios');
-const pool = require('../../database/conexion');
+
 
 const chunks = require('chunk-array').chunks
-class postFichas {
+class postImagenes {
+    constructor(pool) {
+        this.pool = pool;
+    }
 
     async AgregarImagenBD (){
         try {
@@ -16,18 +19,18 @@ class postFichas {
             const verImg = await axios.get(urlAPIImagenes);
 
             await Promise.all(verImg.data.map(async (item) => {
-                const querySelect = 'SELECT * FROM tbl_productos WHERE sku = ?'
-                const [row] = await pool.query(querySelect, [item.sku])
+                const querySelect = 'SELECT * FROM ingramProductosv2 WHERE Sku_ingram = ?'
+                const [row] = await this.pool.query(querySelect, [item.sku])
         
                 if(row.length > 0){
                     
                     const imageUrls = item.image.length > 0 ? [item.imageP, ...item.image] : [item.imageP];
-                    const id = row[0].id;
+                    const id = row[0].id_woocommerce_producto;
                     
                     try {
-                        const queryInsert = `INSERT INTO tbl_imagenes (sku, Imagenes_url, id_Producto) VALUES (?, ?, ?)`;
+                        const queryInsert = `INSERT INTO ingramImagenes (Sku_Ingram, Imagenes_url, id_Producto_Ingram) VALUES (?, ?, ?)`;
                         const valuesQuery = [item.sku, JSON.stringify(imageUrls), id]
-                        await pool.query(queryInsert, valuesQuery);
+                        await this.pool.query(queryInsert, valuesQuery);
     
                         console.log(queryInsert);
                         msg.push(queryInsert)
@@ -55,9 +58,9 @@ class postFichas {
 
             const config = await configHeaders.clavesAjusteGeneral();
 
-            const querySelect = `SELECT * FROM tbl_imagenes`
+            const querySelect = `SELECT * FROM ingramImagenes`
 
-            const [rows] = await pool.query(querySelect);
+            const [rows] = await this.pool.query(querySelect);
 
             let data = rows.map((item) => {
                 try {
@@ -66,7 +69,7 @@ class postFichas {
                     const dataUrl = arrayFilas.map(files => ({ src: files }))
 
                     return {
-                        id: item.id_Producto,
+                        id: item.id_Producto_Ingram,
                         images: dataUrl
                     }
 
@@ -88,7 +91,7 @@ class postFichas {
                     const response = await axios.post(urlUpdateProductWoo, datos,config);
                     console.log(response.data);
                     msg.push(response.data)
-                    return `Se agrego una Imagen: ${ response.data}`;
+                    return `Se agrego una Imagen Nueva a: ${ response.data}`;
                 } catch (error) {
                     return `Tienes un error ${error}`;
                 }
@@ -105,4 +108,4 @@ class postFichas {
 
 }
 
-module.exports = postFichas
+module.exports = postImagenes

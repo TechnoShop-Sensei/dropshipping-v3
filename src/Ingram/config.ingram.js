@@ -11,6 +11,28 @@ class ConsumirApiRestIngram {
         }
     }
 
+         // ? Config con Params - Para Ajustes JSON
+        async configHeaderGeneral(){
+
+            const [row] = await pool.query('SELECT * FROM ingramTokens');
+    
+            let TokenIngram = row[0].Token_Ingram;
+            let CustomerNumber = row[0].Customer_Number_Ingram;
+    
+            let ajustes = {
+                params: this.paramsIngramPriceAvalibity,
+                headers: { 
+                    'IM-CustomerNumber': `${CustomerNumber}`, 
+                    'IM-CountryCode': 'MX',
+                    'IM-CorrelationID': 'fbac82ba-cf0a-4bcf-fc03-0c5084', 
+                    Authorization: `Bearer ${ TokenIngram }`,
+                    'Accept': 'application/json'
+                  }
+            }
+    
+            return ajustes;
+        }
+
     // ?  Para Utilizar Token Ajustes
     async clavesAjusteGeneralToken (){
         const [row] = await pool.query('SELECT * FROM ingramTokens WHERE id_token_Ingram = 1');
@@ -58,6 +80,7 @@ class ConsumirApiRestIngram {
         let TokenIngram = row[0].Token_Ingram;
         let CustomerNumber = row[0].Customer_Number_Ingram;
 
+
         let ajustes = {
             headers: { 
                 'IM-CustomerNumber': `${CustomerNumber}`, 
@@ -70,6 +93,8 @@ class ConsumirApiRestIngram {
 
         return ajustes;
     }
+
+
 
     //!No Correr
     // TODO: Configuracion de Ordenes Produccion - Branch V10, Branch V5, Branch V3
