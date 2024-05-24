@@ -106,7 +106,7 @@ const productUpdateAll = new productUpdate(pool)
     .then(msg => {
         console.log(msg);
         res.status(201).json({
-              mensaje: 'Post Api - Actualizando Categorias de Productos a Woocommerce',
+              mensaje: 'Post Api - Actualizando Titulos de Productos a Woocommerce',
               datos: msg
           })
     })
