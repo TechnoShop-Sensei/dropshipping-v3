@@ -8,6 +8,7 @@ class AbasteoScraper {
   }
 
   async init() {
+    console.log("Iniciando el navegador...");
     this.browser = await puppeteer.launch({
       // Opciones de lanzamiento...
     });
@@ -15,6 +16,7 @@ class AbasteoScraper {
   }
 
   async fetchPartNumbers() {
+    console.log("Obteniendo números de parte...");
     const [rows] = await this.pool.execute('SELECT Modelo, Sku_ingram, id_producto FROM ingramProductosv2 WHERE Nombre_Optimatizado IS NULL');
     return rows;
   }
@@ -39,6 +41,7 @@ class AbasteoScraper {
   async scrapePartNumber(partNumber) {
     const { Modelo, Sku_ingram, id_producto } = partNumber;
     try {
+      console.log(`Procesando número de parte: ${Modelo}`);
       await this.page.goto('https://www.abasteo.mx');
       await this.page.waitForTimeout(3000);
       await this.page.type('input[name="searchparam"]', Modelo);

@@ -13,42 +13,55 @@ class postImagenes {
 
     async AgregarImagenBD (){
         try {
-            let msg = []
-
-            //Consultar las fichas en API BDI
-            const verImg = await axios.get(urlAPIImagenes);
-
-            await Promise.all(verImg.data.map(async (item) => {
-                const querySelect = 'SELECT * FROM ingramProductosv2 WHERE Sku_ingram = ?'
-                const [row] = await this.pool.query(querySelect, [item.sku])
-        
-                if(row.length > 0){
-                    
-                    const imageUrls = item.image.length > 0 ? [item.imageP, ...item.image] : [item.imageP];
-                    const id = row[0].id_woocommerce_producto;
-                    
-                    try {
-                        const queryInsert = `INSERT INTO ingramImagenes (Sku_Ingram, Imagenes_url, id_Producto_Ingram) VALUES (?, ?, ?)`;
-                        const valuesQuery = [item.sku, JSON.stringify(imageUrls), id]
-                        await this.pool.query(queryInsert, valuesQuery);
+            let msg = [];
     
-                        console.log(queryInsert);
-                        msg.push(queryInsert)
-                        
+            // Consultar las fichas en API BDI
+            const verImg = await axios.get(urlAPIImagenes);
+    
+            await Promise.all(verImg.data.map(async (item) => {
+                const querySelect = 'SELECT * FROM ingramProductosv2 WHERE Sku_ingram = ?';
+                const [rows] = await this.pool.query(querySelect, [item.sku]);
+    
+                if (rows.length > 0) {
+                    const imageUrls = item.image.length > 0 ? [item.imageP, ...item.image] : [item.imageP];
+                    const id = rows[0].id_woocommerce_producto;
+    
+                    try {
+                        // Verificar si la imagen ya existe en ingramImagenes
+                        const querySelectImg = 'SELECT * FROM ingramImagenes WHERE Sku_Ingram = ?';
+                        const [imgRows] = await this.pool.query(querySelectImg, [item.sku]);
+    
+                        if (imgRows.length > 0) {
+                            // Actualizar las imágenes existentes
+                            const queryUpdate = 'UPDATE ingramImagenes SET Imagenes_url = ? WHERE Sku_Ingram = ?';
+                            const valuesUpdate = [JSON.stringify(imageUrls), item.sku];
+                            await this.pool.query(queryUpdate, valuesUpdate);
+                            console.log(`Imágenes actualizadas para SKU: ${item.sku}`);
+                            msg.push(`Imágenes actualizadas para SKU: ${item.sku}`);
+                        } else {
+                            // Insertar nuevas imágenes
+                            const queryInsert = 'INSERT INTO ingramImagenes (Sku_Ingram, Imagenes_url, id_Producto_Ingram) VALUES (?, ?, ?)';
+                            const valuesInsert = [item.sku, JSON.stringify(imageUrls), id];
+                            await this.pool.query(queryInsert, valuesInsert);
+                            console.log(`Imágenes insertadas para SKU: ${item.sku}`);
+                            msg.push(`Imágenes insertadas para SKU: ${item.sku}`);
+                        }
                     } catch (error) {
                         console.error(error);
-                        msg.push(error)
+                        msg.push(error);
                         throw error;
                     }
                 }
-            }))
-
-            return msg
-
+            }));
+    
+            return msg;
+    
         } catch (error) {
             throw error;
         }
     }
+
+    
 
     
 

@@ -41,7 +41,9 @@ const marcasSeleccionadasIngram = [
     "StarTech",
     "Xiaomi",
     "Nexxt Home",
-    "PlayStation"
+    "PlayStation",
+    "AMD",
+    "Intel"
   ];
   
 module.exports = marcasSeleccionadasIngram

@@ -17,7 +17,7 @@ class PutProductsPricesandStock {
 
             const queryListSku = `SELECT * FROM ingramProductosv2`;
 
-            const [rows] = await pool.query(queryListSku);
+            const [rows] = await this.pool.query(queryListSku);
         
             let data = rows.map(item => ({ ingramPartNumber: item.Sku_ingram }));
             const productsRows = chunks(data, 50);
@@ -43,8 +43,8 @@ class PutProductsPricesandStock {
                         const queryUtilidadGeneral = `SELECT * FROM ingramUtilidadesGeneral WHERE id_utilidades_ingram = 1`;
                         const queryUtilidades = `SELECT pr.Utilidad_por_Producto, ct.Utilidad_por_Categoria, mr.Utilidad_por_Marca FROM ingramProductosv2 AS pr INNER JOIN wooCategoriasNew2 AS ct ON pr.id_categoria = ct.id_woocommerce INNER JOIN wooMarcasNew AS mr ON pr.id_marca = mr.id_woocommerce WHERE pr.Sku_ingram = ?`;
         
-                        const [utilidad_General] = await pool.query(queryUtilidadGeneral);
-                        const [utilidades] = await pool.query(queryUtilidades, [PartNumber]);
+                        const [utilidad_General] = await this.pool.query(queryUtilidadGeneral);
+                        const [utilidades] = await this.pool.query(queryUtilidades, [PartNumber]);
         
                         let utilidad = 0.0;
 
@@ -69,12 +69,12 @@ class PutProductsPricesandStock {
                         const IVA = 1.16
 
                         const prices = pricesIngram * utilidad;
-                        const prices_final = (prices * utilidad) * IVA
+                        const prices_final = prices * IVA
                         const cantidadTotal = qty;
         
                         const queryUpdate = `UPDATE ingramProductosv2 SET Precio_Ingram = ?, Precio_Ingram_Utilidad = ?, Precio_Final = ?, Status_Woocommerce = ?, Catalog_visibility_Woo = ?, Cantidad = ? WHERE Sku_ingram = ?`;
                         const values = [pricesIngram.toFixed(5), prices.toFixed(5), prices_final.toFixed(5), statusChange, visibility, cantidadTotal, PartNumber];
-                        await pool.query(queryUpdate, values);
+                        await this.pool.query(queryUpdate, values);
         
                         msg.push(`Se actualizo correctamente los precios y stock-- ${PartNumber} -- ${ prices }`);
                     }

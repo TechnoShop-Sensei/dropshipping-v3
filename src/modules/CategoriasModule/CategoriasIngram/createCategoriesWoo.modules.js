@@ -1,5 +1,5 @@
 const configAPIWoo = require('../../../woocommerce/configWooIngram/config.woo');
-const { urlCreateCategoriasWoo, urlupdateCategoriasWoo, urlUpdateCategoriasWoo } = require('../../../Helpers/rutas.woocomerce');
+const { urlUpdateCategoriasWoo } = require('../../../Helpers/rutas.woocomerce');
 const axios = require('axios');
 
 const chunks = require('chunk-array').chunks
@@ -93,10 +93,10 @@ class PutAndAddCategoriasWoo {
                         update: categorias
                     };
                     
-                    const creandoCategoria = await axios.post(urlCreateCategoriasWoo, datos, config);
+                    const actualizandoCategoria = await axios.post(urlUpdateCategoriasWoo, datos, config);
                     
-                    msg.push(`Se Actualizo una Categoria: ${ creandoCategoria.data.update.name }`)
-                    console.log(`Se Actualizo una Categoria: ${ creandoCategoria.data.update.name }`);
+                    msg.push(`Se Actualizo una Categoria: ${ actualizandoCategoria.data.update.id }`)
+                    console.log(`Se Actualizo una Categoria: ${ actualizandoCategoria.data.update.id }`);
                 
                     
                 } catch (error) {
@@ -112,6 +112,8 @@ class PutAndAddCategoriasWoo {
             throw error;
         }
     }
+
+    
 
 }
 

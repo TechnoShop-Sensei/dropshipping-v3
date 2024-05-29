@@ -44,6 +44,9 @@ class Server {
         // ? Orders
         this.app.use(this.orderIngram, require('../routes/RoutesIngram/orders.routes'));
 
+        // ? Filtros All
+        this.app.use(this.technoIngram, require('../routes/RoutesIngram/filtros.routes'));
+
         // ----------------------------------------------------------------
 
 

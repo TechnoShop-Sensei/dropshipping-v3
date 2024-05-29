@@ -20,7 +20,7 @@ class PostProductosWoo {
 
             console.log(config);
 
-            const querySelect = `SELECT * FROM ingramProductosv2 as pr INNER JOIN wooMarcasNew as mr on pr.id_marca = mr.id_woocommerce`;
+            const querySelect = `SELECT * FROM ingramProductosv2`;
 
             const [row] = await this.pool.query(querySelect);
 
@@ -51,8 +51,8 @@ class PostProductosWoo {
     
                     await axios.post(urlUpdateProductWoo, data, config);
                     i++
-                    console.log(`Se actualizo Categorias correctamente en Woo: -- ${ i }`);
-                    msg.push(`Se actualizo Categorias correctamente en Woo: -- ${ i }`);
+                    console.log(`Se actualizo Categorias correctamente la categoria en Woo: -- ${ i }`);
+                    msg.push(`Se actualizo Categorias correctamente la categoria en Woo: -- ${ i }`);
                 } catch (error) {
                     msg.push(`Tienes un error: ${ error }`)
                     throw error
@@ -71,19 +71,18 @@ class PostProductosWoo {
     async ActualizarTitulosAWoo(){
         try {
             const configWoo = new configAPIWoo();
-
             const config = await configWoo.clavesAjusteGeneral();
 
             console.log(config);
 
-            const querySelect = `SELECT * FROM tbl_productos`;
+            const querySelect = `SELECT * FROM ingramProductosv2`;
 
-            const [row] = await pool.query(querySelect);
+            const [row] = await this.pool.query(querySelect);
 
             const data = row.map((item) => {
                 return {
-                    id: item.id,
-                    name: item.Nombre_Optimatizado !== null ? item.Nombre_Optimatizado : item.Nombre,
+                    id: item.id_woocommerce_producto,
+                    name: item.Nombre_Optimatizado !== null || item.Nombre_Optimatizado ? item.Nombre_Optimatizado : item.Nombre,
                 }
             })
 
@@ -100,8 +99,8 @@ class PostProductosWoo {
     
                     await axios.post(urlUpdateProductWoo, data, config);
                     i++
-                    console.log(`Se actualizo correctamente en Woo: -- ${ i }`);
-                    msg.push(`Se actualizo correctamente en Woo: -- ${ i }`);
+                    console.log(`Se actualizo correctamente el titulo en woo: -- ${ i }`);
+                    msg.push(`Se actualizo correctamente el titulo en woo: -- ${ i }`);
                 } catch (error) {
                     msg.push(`Tienes un error: ${ error }`)
                     throw error
