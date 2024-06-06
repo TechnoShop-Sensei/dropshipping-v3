@@ -3,15 +3,15 @@ const { categoriasPostBD, categoriasPostBDIdentify, categoriasPostIdentifyPrinci
 const router = Router();
 
 
-router.post('/categorias',  categoriasPostBD);
+router.post('/categorias',  categoriasPostBD); // Almacenar categorias de Ingram
 
-router.post('/categoriasIdentify',  categoriasPostBDIdentify);
+router.post('/categoriasIdentify',  categoriasPostBDIdentify); // Crear CategoriasNew2 Ingram
 
-router.post('/categoriasPrincipales',  categoriasPostIdentifyPrincipales);
+router.post('/categoriasPrincipales',  categoriasPostIdentifyPrincipales); // Crear CategoriasNew2 Principales
 
-router.post('/categoriasInsertWoo',  categoriasInsertWoo);
+router.post('/categoriasInsertWoo',  categoriasInsertWoo); // Insertar Categorias en Woo
 
-router.post('/categoriasParent',  categoriasPostParentCategoria);
+/*router.post('/categoriasParent',  categoriasPostParentCategoria);*/
 
 router.post('/categoriasUpdateWoo',  categoriasUpdateWoo);
 

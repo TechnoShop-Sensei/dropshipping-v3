@@ -6,14 +6,12 @@ const axios = require('axios');
 const chunks = require('chunk-array').chunks
 
 // Solo Realiza Acciones de Woo
-class PostProductosWoo {
+class PostFiltrosColores {
     constructor(pool){
         this.pool = pool;
     }
-
     
-    
-    async UpdateProductCategoriasWoo() {
+    async AddAndUpdateFiltroColorsWoo() {
         try {
             const configWoo = new configAPIWoo();
             const config = await configWoo.clavesAjusteGeneral();
@@ -139,12 +137,6 @@ class PostProductosWoo {
         }
     }
 
-    
-    
-    
-    
-
-
 }
 
-module.exports = PostProductosWoo
+module.exports = PostFiltrosColores

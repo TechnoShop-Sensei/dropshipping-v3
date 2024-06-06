@@ -1,5 +1,5 @@
 const configAPIWoo = require('../../../woocommerce/configWooIngram/config.woo');
-const { urlUpdateCategoriasWoo } = require('../../../Helpers/rutas.woocomerce');
+const { urlUpdateCategoriasWoo, urlCreateCategoriasWoo } = require('../../../Helpers/rutas.woocomerce');
 const axios = require('axios');
 
 const chunks = require('chunk-array').chunks

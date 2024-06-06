@@ -91,54 +91,51 @@ class PutProductsPricesandStock {
     }
 
     
-    async UpdateProductPricesAndSockWoo(){
+    async UpdateProductPricesAndStockWoo() {
         try {
             const configWoo = new configAPIWoo();
             const config = await configWoo.clavesAjusteGeneral();
-
-            console.log(config);
-
-            const querySelect = `SELECT * FROM ingramProductosv2`;
-
-            const [row] = await this.pool.query(querySelect);
-
-            const data = row.map((item) => {
-                return {
-                    id: item.id_woocommerce_producto,
-                    status: item.Status_Woocommerce,
-                    regular_price: item.Precio_Ingram_Utilidad,
-                    catalog_visibility: item.Catalog_visibility_Woo,
-                    stock_quantity: item.Cantidad,
-                    reviews_allowed: true
-                }
-            })
-
-            const productsRows = chunks(data,100);
-
-            let msg = []
-            let i = 0
-            
-            const requests = productsRows.map(async (product) => {
-                try {
-                    let data = {
-                        update: product
-                    }
     
-                    await axios.post(urlUpdateProductWoo, data, config);
-                    i++
-                    console.log(`Se actualizo correctamente en Woo: -- ${ i }`);
-                    msg.push(`Se actualizo correctamente en Woo: -- ${ i }`);
-                } catch (error) {
-                    msg.push(`Tienes un error: ${ error }`)
-                    throw error
-                }
-            });
-
+            const querySelect = `SELECT * FROM ingramProductosv2`;
+            const [row] = await this.pool.query(querySelect);
+    
+            const data = row.map((item) => ({
+                id: item.id_woocommerce_producto,
+                status: item.Status_Woocommerce,
+                regular_price: item.Precio_Ingram_Utilidad,
+                catalog_visibility: item.Catalog_visibility_Woo,
+                stock_quantity: item.Cantidad,
+                reviews_allowed: true
+            }));
+    
+            const productsRows = chunks(data, 100);
+    
+            const limit = pLimit(5); // Limita a 5 solicitudes concurrentes
+            let msg = [];
+            let i = 0;
+    
+            const requests = productsRows.map((product) => 
+                limit(async () => {
+                    try {
+                        let data = {
+                            update: product
+                        };
+    
+                        await axios.post(urlUpdateProductWoo, data, config);
+                        i++;
+                        console.log(`Se actualizo correctamente en Woo: -- ${i}`);
+                        msg.push(`Se actualizo correctamente en Woo: -- ${i}`);
+                    } catch (error) {
+                        msg.push(`Tienes un error: ${error}`);
+                        throw error;
+                    }
+                })
+            );
+    
             await Promise.all(requests);
-
-            return msg
+            return msg;
         } catch (error) {
-            throw error
+            throw error;
         }
     }
   
