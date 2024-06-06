@@ -57,7 +57,7 @@ const productUpdateAll = new productUpdate(pool)
   }
 
   const productosPricesandStockWoo = async(req = request, res = response) => {
-    productPriceStock.UpdateProductPricesAndSockWoo()
+    productPriceStock.UpdateProductPricesAndStockWoo()
     .then(msg => {
         console.log(msg);
         res.status(201).json({

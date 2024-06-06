@@ -5,6 +5,7 @@ const { urlPricesIngram } = require('../../../Helpers/helpsIngram/rutas.ingram')
 const axios = require('axios');
 const chunks = require('chunk-array').chunks
 
+
 class PutProductsPricesandStock {
     constructor(pool){
         this.pool = pool;
@@ -92,6 +93,7 @@ class PutProductsPricesandStock {
 
     
     async UpdateProductPricesAndStockWoo() {
+        const pLimit = (await import('p-limit')).default;
         try {
             const configWoo = new configAPIWoo();
             const config = await configWoo.clavesAjusteGeneral();
