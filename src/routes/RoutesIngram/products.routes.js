@@ -1,5 +1,5 @@
 const { Router } = require('express')
-const { productosPostBD,  productosCreateWoo, productosPricesandStock, productosPricesandStockWoo, productosUpdateCategorias, productosUpdateTitleWoo} = require('../../controllers/products/productosControllerIngram/products.controllers')
+const { productosPostBD,  productosCreateWoo, productosPricesandStock, productosPricesandStockWoo, productosUpdateCategorias, productosUpdateTitleWoo, productosUpdateIDCategoriasBD, productosUpdateCategoriasAndSubcategoriasNew} = require('../../controllers/products/productosControllerIngram/products.controllers')
 
 const router = Router();
 
@@ -16,5 +16,7 @@ router.post('/pricesandstockUpdatewoo', productosPricesandStockWoo);// Actualiza
 //? Actualizador de Productos
 router.post('/productosCategoriasUpdate', productosUpdateCategorias)// Actualizar Categorias en General a Productos en Woocomerce
 router.post('/productostitulosUpdate', productosUpdateTitleWoo)// Actualizar Titulos a Productos en Woocomerce
+router.post('/productosIdCategoriasUpdatewoo', productosUpdateIDCategoriasBD)
+router.post('/productosCategoriasNewBD', productosUpdateCategoriasAndSubcategoriasNew)
 
 module.exports = router;

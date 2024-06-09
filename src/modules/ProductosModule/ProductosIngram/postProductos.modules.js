@@ -77,8 +77,9 @@ class PostProductos {
                 
  
                 const marcaID = marcas_ID[0].id_woocommerce;
-                const categoriaPadre = categorias_ID[0].id_woocommerce
-                const subcategoria = categorias_ID[0].id_parent_woocommerce
+                const categoriaPadre = parseInt(categorias_ID[0].id_parent_woocommerce, 10); // Convertir a int
+                const subcategoria = categorias_ID[0].id_woocommerce;
+                
                  // Selecciona 'tituloOptimizado' si existe y no está vacío, de lo contrario selecciona 'tituloIngram'
                 const titulo = producto.tituloOptimizado || producto.tituloIngram;
                 

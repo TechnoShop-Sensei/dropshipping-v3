@@ -100,6 +100,37 @@ const productUpdateAll = new productUpdate(pool)
     });
   }
 
+  // Actualiza el ID de Woocommerce que sea igual al Nombre de Categorias de Productos BD
+  const productosUpdateIDCategoriasBD = async(req = request, res = response) => {
+    productUpdateAll.updateWooCommerceIDs()
+    .then(msg => {
+        console.log(msg);
+        res.status(201).json({
+              mensaje: 'Post Api - Actualizando Titulos de Productos a Woocommerce',
+              datos: msg
+          })
+    })
+    .catch(error => {
+        console.error(error);
+    });
+  }
+
+   // Actualiza el ID de Woocommerce que sea igual al Nombre de Categorias de Productos BD
+   const productosUpdateCategoriasAndSubcategoriasNew = async(req = request, res = response) => {
+    productUpdateAll.actualizarCategorias()
+    .then(msg => {
+        console.log(msg);
+        res.status(201).json({
+              mensaje: 'Post Api - Actualizando Titulos de Productos a Woocommerce',
+              datos: msg
+          })
+    })
+    .catch(error => {
+        console.error(error);
+    });
+  }
+  
+  
   
 
 
@@ -114,5 +145,7 @@ module.exports = {
   productosPricesandStockWoo,
 //? Actualizadores
   productosUpdateCategorias,
-  productosUpdateTitleWoo
+  productosUpdateTitleWoo,
+  productosUpdateIDCategoriasBD,
+  productosUpdateCategoriasAndSubcategoriasNew
 }

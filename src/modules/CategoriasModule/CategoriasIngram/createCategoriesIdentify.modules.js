@@ -8,7 +8,9 @@ class postCategoriasIdentify {
             const querySelect = 'SELECT id_bdi, Nombre_Optimatizado, Nombre_Categoria_Ingram FROM ingramCategorias';
             const [rows] = await this.pool.query(querySelect);
     
+            // TODO: Recorre la lista de Categorias
             const promises = rows.map(async (categoria) => {
+
                 const id_ingram_Categorias = `BDI_${categoria.id_bdi}`;
                 const queryCheckExistence = 'SELECT COUNT(*) AS count, Nombre_Categoria FROM wooCategoriasNew2 WHERE id_ingram_Categorias = ?';
                 const [existResults] = await this.pool.query(queryCheckExistence, [id_ingram_Categorias]);
@@ -64,7 +66,6 @@ class postCategoriasIdentify {
                     return queryInsert;
                 } else {
                      // Si la categoría existe, comparar el nombre y actualizar si es diferente
-                      // Si la categoría existe, comparar el nombre y actualizar si es diferente
                     const currentName = existResults[0].Nombre_Categoria;
                     let updatedName = categoria.nombre_categoria_principal && categoria.nombre_categoria_principal.length > 0
                         ? categoria.nombre_categoria_principal

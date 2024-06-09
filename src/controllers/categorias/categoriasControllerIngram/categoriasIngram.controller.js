@@ -13,7 +13,8 @@ const categoriasBDIParent = new postCategoriasParents(pool)
 const categoriasBDIWoo = new putAndAddWooCategorias(pool)
 
 
-// ? Almacenar Categorias Seleccionadas de Ingram en BD
+// ? Almacenar Categorias Seleccionadas de Ingram en BD = 
+// TODO: Tabla ingramCategorias
 const categoriasPostBD = async (req = request, res = response) => {
 
     categoriasBD.ejecutar()
@@ -30,7 +31,8 @@ const categoriasPostBD = async (req = request, res = response) => {
   }
 
   
-// ? Almacenar Marcas con Identificador especial para Ingram en BD
+// ? Almacenar Marcas agregando Identificador especial para Ingram en BD BDI_
+// TODO: Tabla wooCategoriasNew2
 const categoriasPostBDIdentify = async (req = request, res = response) => {
 
     categoriasBDIndentify.createCategoriasIdentifyBDI()
@@ -46,7 +48,8 @@ const categoriasPostBDIdentify = async (req = request, res = response) => {
     });
   }
 
-// ? Agregando mis categorias Principales con Identificador en BD
+// ? Agregando mis categorias Principales agrengando Identificador en BD TECH_
+// TODO: Tabla wooCategoriasNew2
 const categoriasPostIdentifyPrincipales = async(req = request, res = response) => {
 
     categoriasBDIndentify.createCategoriasPrincipales()
@@ -62,23 +65,9 @@ const categoriasPostIdentifyPrincipales = async(req = request, res = response) =
     });
   }
 
-// ? Agregando Parent de id_Woocommerce en categorias BDI
-const categoriasPostParentCategoria = async(req = request, res = response) => {
-
-    categoriasBDIParent.updateWooCommerceParentID()
-    .then(msg => {
-        console.log(msg);
-        res.status(201).json({
-              mensaje: 'Post Api - Agregando Parent Categorias a la Base de Datos con el ID_Woocommerce',
-              datos: msg
-          })
-    })
-    .catch(error => {
-        console.error(error);
-    });
-  }
 
   //? Agregar Todas las categorias a Woocomerce y Obtener ID woocommerce
+  // TODO: Tabla wooCategoriasNew2
   const categoriasInsertWoo = async(req = request, res = response) => {
     categoriasBDIWoo.postCategoriasInsertWoo()
     .then(msg => {
@@ -94,6 +83,7 @@ const categoriasPostParentCategoria = async(req = request, res = response) => {
   }
 
   //? Actualizar Todas las categorias que tengan Parent a Woocomerce
+  // TODO: Tabla wooCategoriasNew2
   const categoriasUpdateWoo = async(req = request, res = response) => {
 
     categoriasBDIWoo.postCategoriasUpdateWoo()
@@ -114,7 +104,7 @@ module.exports = {
     categoriasPostBD,
     categoriasPostBDIdentify,
     categoriasPostIdentifyPrincipales,
-    categoriasPostParentCategoria,
+
 
     categoriasInsertWoo,
     categoriasUpdateWoo
