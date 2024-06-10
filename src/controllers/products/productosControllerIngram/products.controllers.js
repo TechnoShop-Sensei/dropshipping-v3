@@ -53,7 +53,7 @@ const productUpdateAll = new productUpdate(pool)
     })
     .catch(error => {
         console.error(error);
-    });
+    })
   }
 
   const productosPricesandStockWoo = async(req = request, res = response) => {

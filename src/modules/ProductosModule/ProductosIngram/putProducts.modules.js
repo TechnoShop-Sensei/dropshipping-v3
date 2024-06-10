@@ -28,7 +28,7 @@ class PutProductsPricesandStock {
             await Promise.all(productsRows.map(async (iterator) => {
                 try {
                     let data = { products: iterator };
-                    const resp = await axios.post(urlPricesIngram, data, config);
+                    const resp = await this.makeRequestWithRetry(urlPricesIngram, data, config);
         
                     for (const validarItem of resp.data) {
 
@@ -89,6 +89,23 @@ class PutProductsPricesandStock {
             throw error;
         }
         
+    }
+
+    async makeRequestWithRetry(url, data, config, retries = 50, backoff = 10000) {
+        for (let i = 0; i < retries; i++) {
+            try {
+                return await axios.post(url, data, config);
+            } catch (error) {
+                if (error.response && error.response.status === 429) {
+                    console.log(`Rate limit exceeded. Retrying in ${backoff} ms...`);
+                    await new Promise(resolve => setTimeout(resolve, backoff));
+                    backoff *= 2; // Incrementar tiempo de espera exponencialmente
+                } else {
+                    throw error;
+                }
+            }
+        }
+        throw new Error('Maximum retries exceeded');
     }
 
     
