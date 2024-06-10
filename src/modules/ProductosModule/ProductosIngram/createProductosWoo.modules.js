@@ -15,6 +15,7 @@ class PostProductosWoo {
         this.pool = pool;
     }
 
+    // ? Agrgando Productos Nuevos a Woocommerce
     async agregarProductosWoo() {
         try {
             const configHeader = new configAPIWoo();

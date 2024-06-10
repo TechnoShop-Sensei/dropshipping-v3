@@ -5,7 +5,7 @@ const { urlPricesIngram } = require('../../../Helpers/helpsIngram/rutas.ingram')
 const axios = require('axios');
 const chunks = require('chunk-array').chunks
 
-
+// TODO: Actualizar Prices y Stock de productos de Ingram en Woocommerce y Base de datos
 class PutProductsPricesandStock {
     constructor(pool){
         this.pool = pool;

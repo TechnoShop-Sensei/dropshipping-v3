@@ -4,12 +4,13 @@ const { urlCreateProductWoo, urlUpdateProductWoo, urlViewCategoriasWoo } = requi
 const axios = require('axios');
 const chunks = require('chunk-array').chunks
 
-// Solo Realiza Acciones de Woo
+// ? Solo Realiza Acciones en Woo y BD
 class PostProductosWoo {
     constructor(pool){
         this.pool = pool;
     }
     
+    // ? Actualiza las Categorias nuevas de los productos
     async UpdateProductCategoriasWoo(){
         try {
             const configWoo = new configAPIWoo();
@@ -64,7 +65,7 @@ class PostProductosWoo {
         }
     }
 
-    
+    // ? Actualiza los titulos de los productos
     async ActualizarTitulosAWoo(){
         try {
             const configWoo = new configAPIWoo();
@@ -112,6 +113,7 @@ class PostProductosWoo {
         }
     }
 
+    // ? Actualiza el Correcto ID de categorias de Woocommerce a BD
     async updateWooCommerceIDs() {
         try {
             const configHeader = new configAPIWoo();
@@ -166,6 +168,7 @@ class PostProductosWoo {
         }
     }
 
+    // ? Actualiza las categorias de los productos por el ID correcto de Id_Woocommerce y Subcategoria
     async  actualizarCategorias() {
         try {
             // Consulta la API para obtener los productos

@@ -1,5 +1,5 @@
 const configAPIWoo = require('../../../woocommerce/configWooIngram/config.woo');
-const { urlUpdateCategoriasWoo, urlCreateCategoriasWoo } = require('../../../Helpers/rutas.woocomerce');
+const { urlUpdateCategoriasWoo, urlCreateCategoriasWoo, urlGetSearchNameWoo } = require('../../../Helpers/rutas.woocomerce');
 const axios = require('axios');
 
 const chunks = require('chunk-array').chunks
@@ -14,8 +14,6 @@ class PutAndAddCategoriasWoo {
         try {
             const configHeader = new configAPIWoo();
             const config = await configHeader.clavesAjusteGeneral();
-            const urlGetCategoriasWoo = 'https://techno-shop.mx/wp-json/wc/v3/products/categories?search='; // URL base para obtener categorías
-
     
             // Consulta de categorías desde tu base de datos
             const querySelectCategorias = `SELECT * FROM wooCategoriasNew2`;
@@ -36,7 +34,7 @@ class PutAndAddCategoriasWoo {
                     // Verificar cada categoría individualmente
                     for (const categoria of categorias) {
                         // Consultar si la categoría ya existe en WooCommerce
-                        const response = await axios.get(`${urlGetCategoriasWoo}${encodeURIComponent(categoria.name)}`, config);
+                        const response = await axios.get(`${urlGetSearchNameWoo}${encodeURIComponent(categoria.name)}`, config);
                         const categoriasExistentes = response.data;
     
                         // Si la categoría no existe, agregarla

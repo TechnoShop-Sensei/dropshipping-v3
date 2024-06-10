@@ -6,6 +6,7 @@ const urlGetProductWoo = 'https://techno-shop.mx/wp-json/wc/v3/products';
 
 // TODO: Categories
 const urlViewCategoriasWoo =    'https://techno-shop.mx/wp-json/wc/v3/products/categories';
+const urlGetSearchNameWoo = 'https://techno-shop.mx/wp-json/wc/v3/products/categories?search='
 const urlCreateCategoriasWoo =  'https://techno-shop.mx/wp-json/wc/v3/products/categories/batch';
 const urlUpdateCategoriasWoo =  'https://techno-shop.mx/wp-json/wc/v3/products/categories/batch'
 
@@ -26,14 +27,17 @@ const urlCreateHerzt =   'https://techno-shop.mx/wp-json/wc/v3/products/attribut
 module.exports = {
     urlCreateProductWoo,
     urlUpdateProductWoo,
+    urlGetProductWoo,
+
     urlViewCategoriasWoo,
+    urlGetSearchNameWoo,
     urlCreateCategoriasWoo,
     urlUpdateCategoriasWoo,
+   
     urlViewMarcasWoo,
     urlCreateMarcasWoo,
     urlUpdateMarcasWoo,
-    urlGetProductWoo,
-
+/* --------------------------------------------- */
     urlCreateColores,
     urlCreatePulgadas,
 

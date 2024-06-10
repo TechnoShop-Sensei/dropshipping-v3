@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const pool = require('../../../database/conexion');
 
+// TODO: Obtener Titulos de Abasteo Scraper
 class AbasteoScraper {
   constructor(pool) {
     this.pool = pool;

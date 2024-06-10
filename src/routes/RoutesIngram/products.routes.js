@@ -16,7 +16,8 @@ router.post('/pricesandstockUpdatewoo', productosPricesandStockWoo);// Actualiza
 //? Actualizador de Productos
 router.post('/productosCategoriasUpdate', productosUpdateCategorias)// Actualizar Categorias en General a Productos en Woocomerce
 router.post('/productostitulosUpdate', productosUpdateTitleWoo)// Actualizar Titulos a Productos en Woocomerce
-router.post('/productosIdCategoriasUpdatewoo', productosUpdateIDCategoriasBD)
-router.post('/productosCategoriasNewBD', productosUpdateCategoriasAndSubcategoriasNew)
+
+router.post('/productosIdCategoriasUpdatewoo', productosUpdateIDCategoriasBD) // Actualizar Id Categorias en General a Categorias en BD
+router.post('/productosCategoriasNewBD', productosUpdateCategoriasAndSubcategoriasNew) // Actualiza el id_categoria y id_Subcategoria de productos en BD
 
 module.exports = router;

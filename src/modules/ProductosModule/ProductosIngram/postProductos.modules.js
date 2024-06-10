@@ -9,7 +9,7 @@ const pool = require('../../../database/conexion');
 const chunks = require('chunk-array').chunks
 const {abreviarYTraducir, procesarTexto, Uppercase, AgregarMarcaTitulo} = require('../../../Helpers/setNameProduct')
 
-
+// TODO: Agrega productos nuevos y con existencia de Ingram a Techno
 class PostProductos {
     constructor(pool){
         this.pool = pool;

@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const pool = require('../../../database/conexion');
 
+// TODO: Solo se ocupa cuando aun no hay productos con Nombre Optimatizado
 class AbasteoScraper {
   constructor(pool) {
     this.pool = pool;
