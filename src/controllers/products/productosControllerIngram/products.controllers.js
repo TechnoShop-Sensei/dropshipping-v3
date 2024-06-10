@@ -12,6 +12,7 @@ const productPriceStock = new productPrice(pool)
 const productUpdateAll = new productUpdate(pool)
 
   // ? Agregando Productos a BD solo seleccionados desde Categorias y Marcas
+  // TODO: Se agregan productos nuevos cada viernes a las 12:00pm
   const productosPostBD = async(req = request, res = response) => {
     productInsertBD.agregarProductosBD()
     .then(msg => {
@@ -42,6 +43,9 @@ const productUpdateAll = new productUpdate(pool)
   }
 
   //* METODOS DE ACTUALIZAR PRECIOS Y STOCK
+
+  // ? Actualizar Precios y Stock en la Base de Datos
+  // TODO: Actualizar datos dentro de ingramProductosv2 de 50 en 50
   const productosPricesandStock = async(req = request, res = response) => {
     productPriceStock.UpdateProductPricesBD()
     .then(msg => {
@@ -56,6 +60,8 @@ const productUpdateAll = new productUpdate(pool)
     })
   }
 
+  // ? Actualizar Precios y Stock en la Woocommerce
+  // TODO: Actualizar datos dentro de Woocommerce de 100 en 100
   const productosPricesandStockWoo = async(req = request, res = response) => {
     productPriceStock.UpdateProductPricesAndStockWoo()
     .then(msg => {
@@ -70,8 +76,10 @@ const productUpdateAll = new productUpdate(pool)
     });
   }
 
-  //* METODOS DE ACTUALIZAR All
+  //* METODOS DE ACTUALIZAR CUALQUIER DETALLE All
   
+  // ? Actualizar categorias de los productos de Woocommerce editados desde BD
+  // TODO: Actualizar datos dentro de Woocommerce de 100 en 100
   const productosUpdateCategorias = async(req = request, res = response) => {
     productUpdateAll.UpdateProductCategoriasWoo()
     .then(msg => {
@@ -86,6 +94,8 @@ const productUpdateAll = new productUpdate(pool)
     });
   }
 
+  // ? Actualizar Titulos de los productos de Woocommerce editados desde BD
+  // TODO: Actualiza si contiene Nombre Optimatizado de 100 en 100
   const productosUpdateTitleWoo = async(req = request, res = response) => {
     productUpdateAll.ActualizarTitulosAWoo()
     .then(msg => {
@@ -100,7 +110,9 @@ const productUpdateAll = new productUpdate(pool)
     });
   }
 
-  // Actualiza el ID de Woocommerce que sea igual al Nombre de Categorias de Productos BD
+  //* Solo para DATOS GENERALES, detalles de produccion
+
+  // ? Actualiza el ID de Woocommerce que sea igual al Nombre de Categorias de Productos BD
   const productosUpdateIDCategoriasBD = async(req = request, res = response) => {
     productUpdateAll.updateWooCommerceIDs()
     .then(msg => {
@@ -115,7 +127,7 @@ const productUpdateAll = new productUpdate(pool)
     });
   }
 
-   // Actualiza el ID de Woocommerce que sea igual al Nombre de Categorias de Productos BD
+   // ? Actualiza el ID de Woocommerce que sea igual al Nombre de Categorias de Productos BD
    const productosUpdateCategoriasAndSubcategoriasNew = async(req = request, res = response) => {
     productUpdateAll.actualizarCategorias()
     .then(msg => {
