@@ -18,7 +18,7 @@ class AbasteoScraper {
 
   async fetchPartNumbers() {
     console.log("Obteniendo números de parte...");
-    const [rows] = await this.pool.execute('SELECT Modelo, Sku_ingram, id_producto FROM ingramProductosv2 WHERE Nombre_Optimatizado IS NULL');
+    const [rows] = await this.pool.execute('SELECT Modelo, Sku_ingram, id_producto FROM ingramProductosv2 WHERE id_woocommerce_producto IS NULL');
     return rows;
   }
 
