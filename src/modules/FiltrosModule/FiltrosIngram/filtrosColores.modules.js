@@ -21,6 +21,7 @@ class PostFiltrosColores {
             const [rows] = await this.pool.query(querySelect);
     
             const data = rows.map((item) => ({
+                id: item.id_woocommerce_colores,
                 name: item.Nombre_Color,
                 description: item.Descripcion_Color !== null && item.Descripcion_Color.length > 0 ? item.Descripcion_Color : ''
             }));
@@ -32,19 +33,25 @@ class PostFiltrosColores {
             const requests = productsRows.map(async (productBatch) => {
                 try {
                     for (const product of productBatch) {
-                        // Verificar si el color ya existe en WooCommerce
-                        const wooProductResponse = await axios.get(urlGetColores, config);
-                        const existingProduct = wooProductResponse.data.find(p => p.name.toLowerCase() === product.name.toLowerCase());
+                        // Verificar si el color ya existe en WooCommerce usando el parámetro search
+                        const wooProductResponse = await axios.get(`${urlGetColores}?include=${encodeURIComponent(product.id)}`, config);
+                        const exactMatchProduct = wooProductResponse.data.find(p => p.id === product.id);
     
-                        if (existingProduct) {
-                            // Actualizar el color existente
-                            const dataToUpdate = {
-                                update: [{ id: existingProduct.id, name: product.name, description: product.description }]
-                            };
+                        if (exactMatchProduct) {
+                            // Verificar si los nombres son diferentes y actualizar si es necesario
+                            if (exactMatchProduct.name.toLowerCase() !== product.name.toLowerCase() || exactMatchProduct.description !== product.description) {
+                                const dataToUpdate = {
+                                    update: [{ id: exactMatchProduct.id, name: product.name, description: product.description }]
+                                };
     
-                            await axios.post(urlCreateColores, dataToUpdate, config);
-                            console.log(`Se actualizó la categoría correctamente en Woo: -- ${existingProduct.id}`);
-                            msg.push(`Se actualizó la categoría correctamente en Woo: -- ${existingProduct.id}`);
+                                await axios.post(urlCreateColores, dataToUpdate, config);
+                                console.log(`Se actualizó el COLOR correctamente en Woo: -- ${exactMatchProduct.id}`);
+                                msg.push(`Se actualizó el COLOR correctamente en Woo: -- ${exactMatchProduct.id}`);
+                            }else{
+                                console.log('====================================');
+                                console.log("Ya Existe, No recibio actualizacion el color.");
+                                console.log('====================================');
+                            }
                         } else {
                             // Crear un nuevo color
                             const dataToCreate = {
@@ -52,13 +59,13 @@ class PostFiltrosColores {
                             };
     
                             const createResponse = await axios.post(urlCreateColores, dataToCreate, config);
-
+    
                             await Promise.all(createResponse.data.create.map(async (element) => {
                                 const idColor = element.id;
                                 const NameColor = element.name;
                                 const queryUpdate = `UPDATE IngramFiltrosPorColores SET id_woocommerce_colores = ? WHERE Nombre_Color = ?`;
                                 await this.pool.query(queryUpdate, [idColor, NameColor]);
-                                
+    
                                 msg.push(`Se agregó un nuevo Color: ${element.id}, Nombre: ${element.name}`);
                             }));
                         }
@@ -76,7 +83,6 @@ class PostFiltrosColores {
             throw error;
         }
     }
-
      
     async AgregarSegunColor() {
         try {

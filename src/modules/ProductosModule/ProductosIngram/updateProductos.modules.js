@@ -18,7 +18,8 @@ class PostProductosWoo {
 
             console.log(config);
 
-            const querySelect = `SELECT * FROM ingramProductosv2`;
+            const querySelect = `SELECT * FROM ingramProductosv2
+                                 WHERE id_woocommerce_producto IS NOT NULL`;
 
             const [row] = await this.pool.query(querySelect);
 

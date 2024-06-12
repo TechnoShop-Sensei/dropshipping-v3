@@ -18,7 +18,7 @@ class AbasteoScraper {
 
   async fetchPartNumbers() {
     console.log("Obteniendo números de parte...");
-    const [rows] = await this.pool.execute('SELECT Modelo, Sku_ingram, id_producto FROM ingramProductosv2 WHERE id_woocommerce_producto IS NULL');
+    const [rows] = await this.pool.execute('SELECT Modelo, Sku_ingram, id_producto FROM ingramProductosv2 WHERE id_woocommerce_producto IS NULL AND id_producto >= 4083');
     return rows;
   }
 
@@ -86,10 +86,16 @@ class AbasteoScraper {
 
 // Uso de la clase
 (async () => {
+  const startTime = new Date(); // Registrar la hora de inicio
   const scraper = new AbasteoScraper(pool);
 
   await scraper.init();
   await scraper.scrapeAll();
+
+  const endTime = new Date(); // Registrar la hora de finalización
+  const timeTaken = endTime - startTime; // Calcular la diferencia en milisegundos
+  const timeTakenInHours = timeTaken / 3600000; // Convertir a horas
+  console.log(`Tiempo total: ${timeTakenInHours.toFixed(4)} horas`); // Mostrar el tiempo total en horas
 })();
 
 // Implementación de waitForTimeout

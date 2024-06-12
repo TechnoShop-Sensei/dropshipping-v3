@@ -20,6 +20,7 @@ class PostFiltrosPulgadas {
             const [rows] = await this.pool.query(querySelect);
     
             const data = rows.map((item) => ({
+                id: item.id_woocommerce_pulgadas,
                 name: item.Nombre_Pulgada,
                 description: item.Descripcion_Pulgada !== null && item.Descripcion_Pulgada.length > 0 ? item.Descripcion_Pulgada : ''
             }));
@@ -31,33 +32,40 @@ class PostFiltrosPulgadas {
             const requests = productsRows.map(async (productBatch) => {
                 try {
                     for (const product of productBatch) {
-                        // Verificar si el color ya existe en WooCommerce
-                        const wooProductResponse = await axios.get(urlGetPulgadas, config);
-                        const existingProduct = wooProductResponse.data.find(p => p.name.toLowerCase() === product.name.toLowerCase());
+                        // Verificar si la pulgada ya existe en WooCommerce usando el parámetro search
+                        const wooProductResponse = await axios.get(`${urlGetPulgadas}?include=${encodeURIComponent(product.id)}`, config);
+                        
+                        const exactMatchProduct = wooProductResponse.data.find(p => p.id === product.id);
     
-                        if (existingProduct) {
-                            // Actualizar el color existente
-                            const dataToUpdate = {
-                                update: [{ id: existingProduct.id, name: product.name, description: product.description }]
-                            };
+                        if (exactMatchProduct) {
+                            // Verificar si los nombres son diferentes y actualizar si es necesario
+                            if (exactMatchProduct.name.toLowerCase() !== product.name.toLowerCase() || exactMatchProduct.description !== product.description) {
+                                const dataToUpdate = {
+                                    update: [{ id: exactMatchProduct.id, name: product.name, description: product.description }]
+                                };
     
-                            await axios.post(urlCreatePulgadas, dataToUpdate, config);
-                            console.log(`Se actualizó la PULGADA correctamente en Woo: -- ${existingProduct.id}`);
-                            msg.push(`Se actualizó la PULGADA correctamente en Woo: -- ${existingProduct.id}`);
+                                await axios.post(urlCreatePulgadas, dataToUpdate, config);
+                                console.log(`Se actualizó la PULGADA correctamente en Woo: -- ${exactMatchProduct.id}`);
+                                msg.push(`Se actualizó la PULGADA correctamente en Woo: -- ${exactMatchProduct.id}`);
+                            } else {
+                                console.log('====================================');
+                                console.log("Ya Existe, No recibió actualización la pulgada.");
+                                console.log('====================================');
+                            }
                         } else {
-                            // Crear un nuevo color
+                            // Crear una nueva pulgada
                             const dataToCreate = {
                                 create: [{ name: product.name, description: product.description }]
                             };
     
                             const createResponse = await axios.post(urlCreatePulgadas, dataToCreate, config);
-
+    
                             await Promise.all(createResponse.data.create.map(async (element) => {
-                                const idColor = element.id;
-                                const NameColor = element.name;
+                                const idPulgada = element.id;
+                                const NamePulgada = element.name;
                                 const queryUpdate = `UPDATE IngramFiltrosPorPulgadas SET id_woocommerce_pulgadas = ? WHERE Nombre_Pulgada = ?`;
-                                await this.pool.query(queryUpdate, [idColor, NameColor]);
-                                
+                                await this.pool.query(queryUpdate, [idPulgada, NamePulgada]);
+    
                                 msg.push(`Se agregó una nueva Pulgada: ${element.id}, Nombre: ${element.name}`);
                             }));
                         }
@@ -75,6 +83,7 @@ class PostFiltrosPulgadas {
             throw error;
         }
     }
+    
 
      
     async AgregarSegunPulgadas() {

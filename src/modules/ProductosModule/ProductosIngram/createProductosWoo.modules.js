@@ -20,10 +20,13 @@ class PostProductosWoo {
         try {
             const configHeader = new configAPIWoo();
             const config = await configHeader.clavesAjusteGeneral();
-            const querySelect = `SELECT * FROM ingramProductosv2 as pr 
-                                 INNER JOIN wooMarcasNew as mr 
-                                 ON pr.id_marca = mr.id_woocommerce
-                                 WHERE pr.id_woocommerce_producto IS NULL`;
+            const querySelect = `SELECT *
+                                FROM ingramProductosv2 as pr
+                                INNER JOIN wooMarcasNew as mr 
+                                ON pr.id_marca = mr.id_woocommerce
+                                WHERE pr.id_woocommerce_producto IS NULL 
+                                AND id_producto >= 4083
+                                AND id_producto <= 5047 ORDER BY id_producto ASC`;
             const [rows] = await this.pool.query(querySelect);
     
             const productosList = rows.map(products => {
