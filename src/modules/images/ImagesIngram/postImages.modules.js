@@ -19,7 +19,7 @@ class postImagenes {
             const verImg = await axios.get(urlAPIImagenes);
     
             await Promise.all(verImg.data.map(async (item) => {
-                const querySelect = 'SELECT * FROM ingramProductosv2 WHERE Sku_ingram = ?';
+                const querySelect = 'SELECT * FROM ingramProductosv2 WHERE Sku_ingram = ? AND id_producto >= 7511 AND id_producto <= 8510';
                 const [rows] = await this.pool.query(querySelect, [item.sku]);
     
                 if (rows.length > 0) {
@@ -71,7 +71,7 @@ class postImagenes {
 
             const config = await configHeaders.clavesAjusteGeneral();
 
-            const querySelect = `SELECT * FROM ingramImagenes`
+            const querySelect = `SELECT * FROM ingramImagenes where id_imagenes >= 6500`
 
             const [rows] = await this.pool.query(querySelect);
 

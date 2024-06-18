@@ -25,8 +25,7 @@ class PostProductosWoo {
                                 INNER JOIN wooMarcasNew as mr 
                                 ON pr.id_marca = mr.id_woocommerce
                                 WHERE pr.id_woocommerce_producto IS NULL 
-                                AND id_producto >= 4083
-                                AND id_producto <= 5047 ORDER BY id_producto ASC`;
+                                AND pr.id_producto >= 7128 ORDER BY pr.id_producto ASC`;
             const [rows] = await this.pool.query(querySelect);
     
             const productosList = rows.map(products => {

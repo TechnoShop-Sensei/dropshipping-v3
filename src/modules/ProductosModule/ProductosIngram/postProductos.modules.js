@@ -92,7 +92,7 @@ class PostProductos {
              
                 try {
                     const queryInsert = `INSERT INTO ingramProductosv2 (Sku_ingram, Modelo, Nombre, Precio_Ingram, Precio_Ingram_Utilidad, Precio_Final, Status_Woocommerce, Catalog_visibility_Woo, Cantidad, Peso, Longitud, Ancho, Altura, id_marca, id_categoria, id_subcategoria,Utilidad_por_Producto) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-                    const values = [sku, modelo, tituloLimpioCapitalizado, precioIngram, precioConUtilidad, precioFinal, statusValor, visibility, cantidad, dimension_peso, dimension_length , dimension_width, dimension_height, marcaID, subcategoria, categoriaPadre, 0];
+                    const values = [sku, modelo, tituloLimpioCapitalizado, precioIngram, precioConUtilidad, precioFinal, statusValor, visibility, cantidad, dimension_peso, dimension_length , dimension_width, dimension_height, marcaID, categoriaPadre, subcategoria , 0];
                     await pool.query(queryInsert, values);
                     
                     
