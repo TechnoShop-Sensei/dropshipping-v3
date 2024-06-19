@@ -15,15 +15,15 @@ class PostProductosWoo {
         try {
             const configWoo = new configAPIWoo();
             const config = await configWoo.clavesAjusteGeneral();
-
+    
             console.log(config);
-
+    
             const querySelect = `SELECT * FROM ingramProductosv2
                                  WHERE id_woocommerce_producto IS NOT NULL`;
-
-            const [row] = await this.pool.query(querySelect);
-
-            const data = row.map((item) => {
+    
+            const [rows] = await this.pool.query(querySelect);
+    
+            const data = rows.map((item) => {
                 return {
                     id: item.id_woocommerce_producto,
                     categories: [
@@ -35,36 +35,37 @@ class PostProductosWoo {
                         }
                     ]
                 }
-            })
-
-            const productsRows = chunks(data,100);
-
-            let msg = []
-            let i = 0
-            
-            const requests = productsRows.map(async (product) => {
+            });
+    
+            const productsRows = chunks(data, 100);
+    
+            let msg = [];
+            let i = 0;
+    
+            for (const productBatch of productsRows) {
                 try {
                     let data = {
-                        update: product
+                        update: productBatch
                     }
     
                     await axios.post(urlUpdateProductWoo, data, config);
-                    i++
-                    console.log(`Se actualizo Categorias correctamente la categoria en Woo: -- ${ i }`);
-                    msg.push(`Se actualizo Categorias correctamente la categoria en Woo: -- ${ i }`);
+                    i += productBatch.length;
+                    console.log(`Se actualizaron categorías correctamente en Woo: -- ${i}`);
+                    msg.push(`Se actualizaron categorías correctamente en Woo: -- ${i}`);
                 } catch (error) {
-                    msg.push(`Tienes un error: ${ error }`)
-                    throw error
+                    msg.push(`Tienes un error: ${error}`);
+                    console.error(`Tienes un error: ${error}`);
+                    // Puedes manejar los errores aquí si necesitas reintentar o registrar el error.
                 }
-            });
-
-            await Promise.all(requests);
-
-            return msg
+            }
+    
+            return msg;
         } catch (error) {
-            throw error
+            console.error(`Error general: ${error}`);
+            throw error;
         }
     }
+    
 
     // ? Actualiza los titulos de los productos
     async ActualizarTitulosAWoo(){
